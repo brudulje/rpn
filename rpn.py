@@ -3,7 +3,6 @@ from tkinter import messagebox
 import math
 
 
-# GUI setup
 class RPNCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -12,10 +11,10 @@ class RPNCalculator(tk.Tk):
         self.stack = []       # Stack for RPN calculation
         self.history = []        # List of input
 
-        self.operator_2 = {'+', '-', '*', '/', '^', '\u00f7', '%'}
+        self.operator_2 = {'+', '-', '*', '/', '^', '\u00f7', '%','n\u221a'}
         # ÷ \u00f7 pi \u03c0 tau \u03c4 √ \u221a
         self.operator_1 = {'\u221a', 'sin', 'cos', 'tan',
-                           'ln', 'log', 'x^2', '1/x'}
+                           'ln', 'log', '1/x'}
         self.operator_0 = {'\u03c0', '\u03c4', 'e'}
         self.operators = self.operator_0 | self.operator_1 | self.operator_2
 
@@ -64,13 +63,6 @@ class RPNCalculator(tk.Tk):
                                       command=self.clear)
         self.clear_button.grid(row=1, column=0, pady=5)
 
-        # # "Clear Stack" button to manually clear the stack
-        # self.clear_stack_button = tk.Button(self, text="Clear Stack",
-        #                                     font=("Arial", 14),
-        #                                     width=10, height=1, bg='lightgray',
-        #                                     command=self.clear_stack)
-        # self.clear_stack_button.grid(row=1, column=1, columnspan=2, pady=5)
-
         self.stack_label = tk.Label(self, text="[]", font=("Arial", 12),
                                     width=25, height=2)
         self.stack_label.grid(row=7, column=0, columnspan=4, padx=10, pady=10)
@@ -113,6 +105,8 @@ class RPNCalculator(tk.Tk):
             result = operand1 // operand2
         elif operator == '%':
             result = operand1 % operand2
+        elif operator == 'n\u221a':
+            result = operand1 ** (1/operand2)
         else:
             raise ValueError(f"Unknown operator {operator}.")
 
@@ -139,8 +133,9 @@ class RPNCalculator(tk.Tk):
             return math.log10(operand)
         elif operator == '1/x':
             return 1 / operand
-        elif operator == 'x^2':
-            return operand ** 2
+        # elif operator == 'x^2':
+        #     return operand ** 2
+
         else:
             raise ValueError(f"Unknown operator {operator}.")
 
@@ -163,8 +158,8 @@ class RPNCalculator(tk.Tk):
             # Change button labels to scientific mode
             # and update handlers
             self.button_objs['sci'].config(bg='orange')
-            self.button_objs['√'].config(text='x^2')
-            self.button_objs['√'].config(command=self.create_button_handler('x^2'))
+            self.button_objs['√'].config(text='n\u221a')
+            self.button_objs['√'].config(command=self.create_button_handler('n\u221a'))
             self.button_objs['/'].config(text='1/x')
             self.button_objs['/'].config(command=self.create_button_handler('1/x'))
             self.button_objs['*'].config(text='tan')
@@ -275,8 +270,8 @@ class RPNCalculator(tk.Tk):
 
     def clear(self):
         """Clear various variables when the Clear button is pressed."""
-        print("Clearing...", self.stack, type(self.stack), self.history, type(self.history))
-        print(bool(self.stack), bool(self.history))
+        # print("Clearing...", self.stack, type(self.stack), self.history, type(self.history))
+        # print(bool(self.stack), bool(self.history))
         if self.entry.get().strip():
             # There is something in the entry field; clear this
             self.entry.delete(0, tk.END)

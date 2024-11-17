@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import math
 
+
 # GUI setup
 class RPNCalculator(tk.Tk):
     def __init__(self):
@@ -17,31 +18,50 @@ class RPNCalculator(tk.Tk):
         # Stack for RPN calculation
         self.stack = []
 
+        self.operator_2 = {'+', '-', '*', '/', '^', '\u00f7', '%'}
+        # ÷ \u00f7
+        # pi \u03c0
+        # tau \u03c4
+        # √ \u221a
+        self.operator_1 = {'\u221a', 'sin', 'cos', 'tan',
+                           'ln', 'log', 'x^2', '1/x'}
+        self.operator_0 = {'\u03c0', '\u03c4', 'e'}
+
+        self.operators = self.operator_0 | self.operator_1 | self.operator_2
+        print(self.operators, type(self.operators))
+
         self.sci_mode = False  # Initially not in scientific mode
 
         # Define button layout and colors
         self.buttons = [
-                    # ('Clear', 1, 0),
-                       ('\u221a', 1, 3, 'lightgreen'), ('sci', 1, 4, 'lightyellow'),
-                    # ('log', 2, 0), ('sin', 2, 1), ('cos', 2, 2), ('tan', 2, 3), ('sqrt', 2, 4),
-                    ('7', 3, 0, 'lightblue'), ('8', 3, 1, 'lightblue'), ('9', 3, 2, 'lightblue'), ('/', 3, 3, 'lightgreen'),   ('\u03c0', 3, 4, 'lightblue'),
-                    ('4', 4, 0, 'lightblue'), ('5', 4, 1, 'lightblue'), ('6', 4, 2, 'lightblue'), ('*', 4, 3, 'lightgreen'),   ('%', 4, 4, 'lightgreen'),
-                    ('1', 5, 0, 'lightblue'), ('2', 5, 1, 'lightblue'), ('3', 5, 2, 'lightblue'), ('-', 5, 3, 'lightgreen'),   ('\u00f7', 5, 4, 'lightgreen'),
-                    ('0', 6, 0, 'lightblue'), ('.', 6, 1, 'lightblue'),               ('+', 6, 3, 'lightgreen'),   ('^', 6, 4, 'lightgreen')
-                    ]
+            ('\u221a', 1, 3, 'lightgreen'),
+            ('sci', 1, 4, 'lightyellow'),
+            ('7', 3, 0, 'lightblue'), ('8', 3, 1, 'lightblue'),
+            ('9', 3, 2, 'lightblue'), ('/', 3, 3, 'lightgreen'),
+            ('\u03c0', 3, 4, 'lightgreen'),
+            ('4', 4, 0, 'lightblue'), ('5', 4, 1, 'lightblue'),
+            ('6', 4, 2, 'lightblue'), ('*', 4, 3, 'lightgreen'),
+            ('%', 4, 4, 'lightgreen'),
+            ('1', 5, 0, 'lightblue'), ('2', 5, 1, 'lightblue'),
+            ('3', 5, 2, 'lightblue'), ('-', 5, 3, 'lightgreen'),
+            ('\u00f7', 5, 4, 'lightgreen'),
+            ('0', 6, 0, 'lightblue'), ('.', 6, 1, 'lightblue'),
+            ('+', 6, 3, 'lightgreen'), ('^', 6, 4, 'lightgreen')
+            ]
 
         # Create the buttons for the number pad and operators with colors
         self.button_objs = {}
         for (text, row, col, color) in self.buttons:
             button = tk.Button(self, text=text, font=("Arial", 14),
                                width=4, height=1, bg=color,
-                               command=lambda t=text: self.on_button_click(t))
+                               command=self.create_button_handler(text))
             button.grid(row=row, column=col, padx=5, pady=5)
             self.button_objs[text] = button
 
         # "Enter" button to add current value to the stack
         self.enter_button = tk.Button(self, text="Enter", font=("Arial", 14),
-                                      width=4, height=1, bg='darkgray', command=self.add_to_stack)
+                                      width=4, height=1, bg='darkgray',
+                                      command=self.add_to_stack)
         self.enter_button.grid(row=6, column=2, pady=5)
 
         # "Clear" button to clear the input
@@ -61,8 +81,15 @@ class RPNCalculator(tk.Tk):
                                     width=25, height=2)
         self.stack_label.grid(row=7, column=0, columnspan=4, padx=10, pady=10)
 
-    # Core of the rpn calculator
-    def evaluate_rpn(self, expression):
+    def create_button_handler(self, text):
+        """Returns a function that calls self.on_button_click with the button text."""
+        def handler():
+            self.on_button_click(text)
+        return handler
+
+
+    def evaluate_two(self, expression):
+        """Operate operators taking two operands."""
         try:
             operand1 = expression[0]
             operand2 = expression[1]
@@ -92,14 +119,41 @@ class RPNCalculator(tk.Tk):
 
         return result
 
-    def single_operand(self, expression):
+    def evaluate_one(self, expression):
         """Operate operators taking a single operand."""
+        # {'\u221a', 'sin', 'cos', 'tan',
+        # 'ln', 'log', 'x^2', '1/x'}
+
         operand = expression[0]
         operator = expression[1]
         if operator == '\u221a':
             return math.sqrt(operand)
+        elif operator == 'sin':
+            return math.sin(operand)
+        elif operator == 'cos':
+            return math.cos(operand)
+        elif operator == 'tan':
+            return math.tan(operand)
+        elif operator == 'ln':
+            return math.log(operand)
+        elif operator == 'log':
+            return math.log10(operand)
+        elif operator == '1/x':
+            return 1 / operand
+        elif operator == 'x^2':
+            return operand ** 2
+
         else:
             raise ValueError(f"Unknown operator {operator}.")
+
+    def evaluate_zero(self, text):
+        # {'\u03c0', '\u03c4', 'e'}
+        if text == '\u03c0':
+            return math.pi
+        elif text == '\u03c4':
+            return 2 * math.pi
+        elif text == 'e':
+            return math.e
 
     def toggle_sci_mode(self):
         """Toggle between scientific and normal mode."""
@@ -107,59 +161,93 @@ class RPNCalculator(tk.Tk):
 
         if self.sci_mode:
             # Change button labels to scientific mode
+            # and update handlers
+            self.button_objs['sci'].config(bg='orange')
             self.button_objs['√'].config(text='x^2')
+            self.button_objs['√'].config(command=self.create_button_handler('x^2'))
             self.button_objs['/'].config(text='1/x')
+            self.button_objs['/'].config(command=self.create_button_handler('1/x'))
             self.button_objs['*'].config(text='tan')
+            self.button_objs['*'].config(command=self.create_button_handler('tan'))
             self.button_objs['-'].config(text='cos')
+            self.button_objs['-'].config(command=self.create_button_handler('cos'))
             self.button_objs['+'].config(text='sin')
+            self.button_objs['+'].config(command=self.create_button_handler('sin'))
             self.button_objs['π'].config(text='\u03c4')
+            self.button_objs['π'].config(command=self.create_button_handler('\u03c4'))
             self.button_objs['%'].config(text='e')
+            self.button_objs['%'].config(command=self.create_button_handler('e'))
             self.button_objs['÷'].config(text='ln')
-            self.button_objs['^'].config(text='lg')
+            self.button_objs['÷'].config(command=self.create_button_handler('ln'))
+            self.button_objs['^'].config(text='log')
+            self.button_objs['^'].config(command=self.create_button_handler('log'))
         else:
             # Revert back to normal mode
+            self.button_objs['sci'].config(bg='lightyellow')
             self.button_objs['√'].config(text='√')
+            self.button_objs['√'].config(command=self.create_button_handler('√'))
             self.button_objs['/'].config(text='/')
+            self.button_objs['/'].config(command=self.create_button_handler('/'))
             self.button_objs['*'].config(text='*')
+            self.button_objs['*'].config(command=self.create_button_handler('*'))
             self.button_objs['-'].config(text='-')
+            self.button_objs['-'].config(command=self.create_button_handler('-'))
             self.button_objs['+'].config(text='+')
+            self.button_objs['+'].config(command=self.create_button_handler('+'))
             self.button_objs['π'].config(text='\u03c0')
+            self.button_objs['π'].config(command=self.create_button_handler('π'))
             self.button_objs['%'].config(text='%')
+            self.button_objs['%'].config(command=self.create_button_handler('%'))
             self.button_objs['÷'].config(text='÷')
+            self.button_objs['÷'].config(command=self.create_button_handler('÷'))
             self.button_objs['^'].config(text='^')
+            self.button_objs['^'].config(command=self.create_button_handler('^'))
 
     def on_button_click(self, value):
         """Handle button click: add value to the input field."""
-        current_text = self.entry.get()
+        # current_text = self.entry.get()
         if value == 'sci':
-            self.toggle_sci_mode()  # Toggle the sci mode when the "sci" button is clicked
+            # Toggle the sci mode when the "sci" button is clicked
+            self.toggle_sci_mode()
         else:
             self.entry.insert(tk.END, value)
 
     def add_to_stack(self):
-        """Add the current value (operand or operator) to the stack when Enter is pressed."""
+        """Add the current value (operand or operator) to the stack
+        when Enter is pressed."""
         current_text = self.entry.get().strip()
         if current_text:
-            if current_text in {'+', '-', '*', '/', '^', '\u00f7', '%'}:
+            if current_text in self.operator_2:
+                #{'+', '-', '*', '/', '^', '\u00f7', '%'}:
                 # Add operator to stack
                 self.stack.append(current_text)
-                self.entry.delete(0, tk.END)  # Clear entry field after adding operator
-                result = self.evaluate_rpn(self.stack[-3:])  # Evaluate immediately after adding an operator
+                # Clear entry field after adding operator
+                self.entry.delete(0, tk.END)
+                # Evaluate immediately after adding an operator
+                result = self.evaluate_two(self.stack[-3:])
                 # self.stack= self.stack[:-3].append(result)  # Nope!
                 self.stack = self.stack[:-3]
                 self.stack.append(result)
-            elif current_text in {'\u221a'}:  # Single operand operators
+            elif current_text in self.operator_1:
+                #{'\u221a', 'sin', 'cos', 'tan',
+                # 'ln', 'log', 'x^2', '1/x'}
+                # Single operand operators
                 self.stack.append(current_text)
-                self.entry.delete(0, tk.END)  # Clear entry field after adding operator
-                result = self.single_operand(self.stack[-2:])
+                # Clear entry field after adding operator
+                self.entry.delete(0, tk.END)
+                result = self.evaluate_one(self.stack[-2:])
                 self.stack = self.stack[:-2]
                 self.stack.append(result)
-            elif current_text == '\u03c0':
-                self.stack.append(3.1415)
-                self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+            elif current_text in self.operator_0:
+                # {'\u03c0', '\u03c4', 'e'}
+                result = self.evaluate_zero(current_text)
+                # Clear the entry field after adding to stack
+                self.entry.delete(0, tk.END)
+                self.stack = self.stack[:-1]
+                self.stack.append(result)
             else:  # Should be a number
                 try:
-                    if not "." in current_text:
+                    if "." not in current_text:
                         # Should be an int
                         value = int(current_text)
                     else:
@@ -167,7 +255,8 @@ class RPNCalculator(tk.Tk):
                         value = float(current_text)
                     #  and add it to the stack
                     self.stack.append(value)
-                    self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+                    # Clear the entry field after adding to stack
+                    self.entry.delete(0, tk.END)
                 except ValueError:
                     messagebox.showerror("Error", f"Invalid number: {current_text}")
 
@@ -179,11 +268,13 @@ class RPNCalculator(tk.Tk):
     def clear_stack(self):
         """Clear the entire stack when the 'Clear Stack' button is pressed."""
         self.stack.clear()  # Clear the stack
-        self.update_display()  # Update the display to reflect the cleared stack
+        # Update the display to reflect the cleared stack
+        self.update_display()
 
     def update_display(self):
         """Update the stack display label."""
         self.stack_label.config(text=f"{self.stack}")  # Update stack display
+
 
 # Create the GUI application
 if __name__ == "__main__":

@@ -8,29 +8,23 @@ class RPNCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("RPN Calculator")
-        self.geometry("320x350")
+        self.geometry("320x420")
+        self.stack = []       # Stack for RPN calculation
+        self.history = []        # List of input
+
+        self.operator_2 = {'+', '-', '*', '/', '^', '\u00f7', '%'}
+        # ÷ \u00f7 pi \u03c0 tau \u03c4 √ \u221a
+        self.operator_1 = {'\u221a', 'sin', 'cos', 'tan',
+                           'ln', 'log', 'x^2', '1/x'}
+        self.operator_0 = {'\u03c0', '\u03c4', 'e'}
+        self.operators = self.operator_0 | self.operator_1 | self.operator_2
+
+        self.sci_mode = False  # Initially not in scientific mode
 
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Arial", 14),
                               width=20, borderwidth=2, relief="solid")
         self.entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
-
-        # Stack for RPN calculation
-        self.stack = []
-
-        self.operator_2 = {'+', '-', '*', '/', '^', '\u00f7', '%'}
-        # ÷ \u00f7
-        # pi \u03c0
-        # tau \u03c4
-        # √ \u221a
-        self.operator_1 = {'\u221a', 'sin', 'cos', 'tan',
-                           'ln', 'log', 'x^2', '1/x'}
-        self.operator_0 = {'\u03c0', '\u03c4', 'e'}
-
-        self.operators = self.operator_0 | self.operator_1 | self.operator_2
-        print(self.operators, type(self.operators))
-
-        self.sci_mode = False  # Initially not in scientific mode
 
         # Define button layout and colors
         self.buttons = [
@@ -81,12 +75,17 @@ class RPNCalculator(tk.Tk):
                                     width=25, height=2)
         self.stack_label.grid(row=7, column=0, columnspan=4, padx=10, pady=10)
 
+        self.history_label = tk.Label(self, text="[]", font=("Arial", 12),
+                                      width=25, height=2)
+        self.history_label.grid(row=8, column=0, columnspan=4,
+                                padx=10, pady=10)
+
     def create_button_handler(self, text):
-        """Returns a function that calls self.on_button_click with the button text."""
+        """Returns a function that calls
+        self.on_button_click with the button text."""
         def handler():
             self.on_button_click(text)
         return handler
-
 
     def evaluate_two(self, expression):
         """Operate operators taking two operands."""
@@ -121,9 +120,7 @@ class RPNCalculator(tk.Tk):
 
     def evaluate_one(self, expression):
         """Operate operators taking a single operand."""
-        # {'\u221a', 'sin', 'cos', 'tan',
-        # 'ln', 'log', 'x^2', '1/x'}
-
+        # {'\u221a', 'sin', 'cos', 'tan', 'ln', 'log', 'x^2', '1/x'}
         operand = expression[0]
         operator = expression[1]
         if operator == '\u221a':
@@ -142,7 +139,6 @@ class RPNCalculator(tk.Tk):
             return 1 / operand
         elif operator == 'x^2':
             return operand ** 2
-
         else:
             raise ValueError(f"Unknown operator {operator}.")
 
@@ -154,6 +150,8 @@ class RPNCalculator(tk.Tk):
             return 2 * math.pi
         elif text == 'e':
             return math.e
+        else:
+            raise ValueError(f"Unknown operator {text}.")
 
     def toggle_sci_mode(self):
         """Toggle between scientific and normal mode."""
@@ -204,21 +202,29 @@ class RPNCalculator(tk.Tk):
             self.button_objs['^'].config(command=self.create_button_handler('^'))
 
     def on_button_click(self, value):
-        """Handle button click: add value to the input field."""
-        # current_text = self.entry.get()
+        """Handle button click: add value to the input field
+        and trigger calculation."""
         if value == 'sci':
             # Toggle the sci mode when the "sci" button is clicked
             self.toggle_sci_mode()
         else:
-            self.entry.insert(tk.END, value)
+            # For operators, we insert the operator and immediately calculate
+            if value in self.operators:
+                # For 2-operand operators like '+', '-', '*', '/', etc.
+                self.entry.insert(tk.END, value)
+                self.add_to_stack()  # Automatically trigger calculation
+            else:
+                # For numbers, just insert them into the entry field
+                self.entry.insert(tk.END, value)
 
     def add_to_stack(self):
         """Add the current value (operand or operator) to the stack
         when Enter is pressed."""
         current_text = self.entry.get().strip()
+        self.history.append(current_text)
         if current_text:
             if current_text in self.operator_2:
-                #{'+', '-', '*', '/', '^', '\u00f7', '%'}:
+                # {'+', '-', '*', '/', '^', '\u00f7', '%'}:
                 # Add operator to stack
                 self.stack.append(current_text)
                 # Clear entry field after adding operator
@@ -229,7 +235,7 @@ class RPNCalculator(tk.Tk):
                 self.stack = self.stack[:-3]
                 self.stack.append(result)
             elif current_text in self.operator_1:
-                #{'\u221a', 'sin', 'cos', 'tan',
+                # {'\u221a', 'sin', 'cos', 'tan',
                 # 'ln', 'log', 'x^2', '1/x'}
                 # Single operand operators
                 self.stack.append(current_text)
@@ -243,7 +249,7 @@ class RPNCalculator(tk.Tk):
                 result = self.evaluate_zero(current_text)
                 # Clear the entry field after adding to stack
                 self.entry.delete(0, tk.END)
-                self.stack = self.stack[:-1]
+                # self.stack = self.stack[:-1]
                 self.stack.append(result)
             else:  # Should be a number
                 try:
@@ -274,6 +280,7 @@ class RPNCalculator(tk.Tk):
     def update_display(self):
         """Update the stack display label."""
         self.stack_label.config(text=f"{self.stack}")  # Update stack display
+        self.history_label.config(text=f"{self.history}")  # Update stack display
 
 
 # Create the GUI application

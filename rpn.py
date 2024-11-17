@@ -61,23 +61,23 @@ class RPNCalculator(tk.Tk):
         # "Clear" button to clear the input
         self.clear_button = tk.Button(self, text="Clear", font=("Arial", 14),
                                       width=4, height=1, bg='lightgray',
-                                      command=lambda: self.entry.delete(0, tk.END))
+                                      command=self.clear)
         self.clear_button.grid(row=1, column=0, pady=5)
 
-        # "Clear Stack" button to manually clear the stack
-        self.clear_stack_button = tk.Button(self, text="Clear Stack",
-                                            font=("Arial", 14),
-                                            width=10, height=1, bg='lightgray',
-                                            command=self.clear_stack)
-        self.clear_stack_button.grid(row=1, column=1, columnspan=2, pady=5)
+        # # "Clear Stack" button to manually clear the stack
+        # self.clear_stack_button = tk.Button(self, text="Clear Stack",
+        #                                     font=("Arial", 14),
+        #                                     width=10, height=1, bg='lightgray',
+        #                                     command=self.clear_stack)
+        # self.clear_stack_button.grid(row=1, column=1, columnspan=2, pady=5)
 
         self.stack_label = tk.Label(self, text="[]", font=("Arial", 12),
                                     width=25, height=2)
         self.stack_label.grid(row=7, column=0, columnspan=4, padx=10, pady=10)
 
         self.history_label = tk.Label(self, text="[]", font=("Arial", 12),
-                                      width=25, height=2)
-        self.history_label.grid(row=8, column=0, columnspan=4,
+                                      width=25, height=2, anchor="e")
+        self.history_label.grid(row=8, column=0, columnspan=5,
                                 padx=10, pady=10)
 
     def create_button_handler(self, text):
@@ -124,6 +124,8 @@ class RPNCalculator(tk.Tk):
         operand = expression[0]
         operator = expression[1]
         if operator == '\u221a':
+            if operand < 0:
+                raise ValueError("Root of negative numbers not supported.")
             return math.sqrt(operand)
         elif operator == 'sin':
             return math.sin(operand)
@@ -271,11 +273,23 @@ class RPNCalculator(tk.Tk):
         else:
             messagebox.showerror("Error", "Please enter a valid number or operator.")
 
-    def clear_stack(self):
-        """Clear the entire stack when the 'Clear Stack' button is pressed."""
-        self.stack.clear()  # Clear the stack
-        # Update the display to reflect the cleared stack
-        self.update_display()
+    def clear(self):
+        """Clear various variables when the Clear button is pressed."""
+        print("Clearing...", self.stack, type(self.stack), self.history, type(self.history))
+        print(bool(self.stack), bool(self.history))
+        if self.entry.get().strip():
+            # There is something in the entry field; clear this
+            self.entry.delete(0, tk.END)
+        elif self.stack:
+            # Entry field is empty, stack has something in it
+            self.stack.clear()
+            self.update_display()
+        elif self.history:
+            # Stack is also empty, history has something in it
+            self.history.clear()
+            self.update_display()
+        else:
+            pass
 
     def update_display(self):
         """Update the stack display label."""

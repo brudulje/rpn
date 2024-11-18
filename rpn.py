@@ -7,39 +7,53 @@ class RPNCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("RPN Calculator")
-        self.geometry("320x380")
+        self.geometry("330x380")
         self.stack = []       # Stack for RPN calculation
         self.history = []        # List of input
 
-        self.operator_2 = {'+', '-', '*', '/', '^', '\u00f7', '%','n\u221a'}
+        self.operator_2 = {'+', '-', '\u00d7', '/', '^', '\u00f7', '%','n\u221a'}
         # ÷ \u00f7 pi \u03c0 tau \u03c4 √ \u221a
         self.operator_1 = {'\u221a', 'sin', 'cos', 'tan',
                            'ln', 'log', '1/x'}
         self.operator_0 = {'\u03c0', '\u03c4', 'e'}
         self.operators = self.operator_0 | self.operator_1 | self.operator_2
 
-        self.sci_mode = False  # Initially not in scientific mode
+        self.sci_mode = 0  # Initially not in scientific mode
 
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Arial", 14),
-                              width=10, borderwidth=1, relief="solid")
-        self.entry.grid(row=0, column=0, columnspan=2, padx=0, pady=6)
+                              width=25, borderwidth=1, relief="solid")
+        self.entry.grid(row=0, column=0, columnspan=5, padx=0, pady=6)
+
+        self.stack_label = tk.Label(self, text="Stack: []", font=("Arial", 12),
+                                    width=30, height=2, anchor="e")
+        self.stack_label.grid(row=1, column=0, columnspan=5, padx=1, pady=5)
+
+        self.history_label = tk.Label(self, text="History: []", font=("Arial", 12),
+                                      width=30, height=2, anchor="e")
+        self.history_label.grid(row=2, column=0, columnspan=5,
+                                padx=1, pady=2)
+
+        self.clear_button = tk.Button(self, text="Clear", font=("Arial", 14),
+                                      width=4, height=1, bg='lightgray',
+                                      command=self.clear)
+        self.clear_button.grid(row=3, column=0, pady=5)
 
         # Define button layout and colors
         self.buttons = [
-            ('\u221a', 2, 3, 'lightgreen'),
-            ('sci', 2, 4, 'lightyellow'),
-            ('7', 3, 0, 'lightblue'), ('8', 3, 1, 'lightblue'),
-            ('9', 3, 2, 'lightblue'), ('/', 3, 3, 'lightgreen'),
-            ('\u03c0', 3, 4, 'lightgreen'),
-            ('4', 4, 0, 'lightblue'), ('5', 4, 1, 'lightblue'),
-            ('6', 4, 2, 'lightblue'), ('*', 4, 3, 'lightgreen'),
-            ('%', 4, 4, 'lightgreen'),
-            ('1', 5, 0, 'lightblue'), ('2', 5, 1, 'lightblue'),
-            ('3', 5, 2, 'lightblue'), ('-', 5, 3, 'lightgreen'),
-            ('\u00f7', 5, 4, 'lightgreen'),
-            ('0', 6, 0, 'lightblue'), ('.', 6, 1, 'lightblue'),
-            ('+', 6, 3, 'lightgreen'), ('^', 6, 4, 'lightgreen')
+            ('\u221a', 3, 3, 'lightgreen'),
+            ('sci', 3, 4, '#ffa'),
+            ('7', 4, 0, 'lightblue'), ('8', 4, 1, 'lightblue'),
+            ('9', 4, 2, 'lightblue'), ('/', 4, 3, 'lightgreen'),
+            ('\u03c0', 4, 4, 'lightgreen'),
+            ('4', 5, 0, 'lightblue'), ('5', 5, 1, 'lightblue'),
+            ('6', 5, 2, 'lightblue'), ('\u00d7', 5, 3, 'lightgreen'),
+            ('%', 5, 4, 'lightgreen'),
+            ('1', 6, 0, 'lightblue'), ('2', 6, 1, 'lightblue'),
+            ('3', 6, 2, 'lightblue'), ('-', 6, 3, 'lightgreen'),
+            ('\u00f7', 6, 4, 'lightgreen'),
+            ('0', 7, 0, 'lightblue'), ('.', 7, 1, 'lightblue'),
+            ('+', 7, 3, 'lightgreen'), ('^', 7, 4, 'lightgreen')
             ]
 
         # Create the buttons for the number pad and operators with colors
@@ -48,29 +62,20 @@ class RPNCalculator(tk.Tk):
             button = tk.Button(self, text=text, font=("Arial", 14),
                                width=4, height=1, bg=color,
                                command=self.create_button_handler(text))
-            button.grid(row=row, column=col, padx=5, pady=5)
+            button.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
             self.button_objs[text] = button
+
+        # Change font on the pi button
+        self.button_objs['π'].config(font=("Symbol", 14))
 
         # "Enter" button to add current value to the stack
         self.enter_button = tk.Button(self, text="Enter", font=("Arial", 14),
                                       width=4, height=1, bg='darkgray',
                                       command=self.add_to_stack)
-        self.enter_button.grid(row=6, column=2, pady=5)
+        self.enter_button.grid(row=7, column=2, pady=5)
 
         # "Clear" button to clear the input
-        self.clear_button = tk.Button(self, text="Clear", font=("Arial", 14),
-                                      width=4, height=1, bg='lightgray',
-                                      command=self.clear)
-        self.clear_button.grid(row=2, column=0, pady=5)
 
-        self.stack_label = tk.Label(self, text="[]", font=("Arial", 12),
-                                    width=15, height=2, anchor="w")
-        self.stack_label.grid(row=0, column=2, columnspan=3, padx=1, pady=5)
-
-        self.history_label = tk.Label(self, text="[]", font=("Arial", 12),
-                                      width=32, height=2, anchor="e")
-        self.history_label.grid(row=1, column=0, columnspan=5,
-                                padx=1, pady=2)
 
     def create_button_handler(self, text):
         """Returns a function that calls
@@ -93,7 +98,7 @@ class RPNCalculator(tk.Tk):
             result = operand1 + operand2
         elif operator == '-':
             result = operand1 - operand2
-        elif operator == '*':
+        elif operator == '\u00d7':
             result = operand1 * operand2
         elif operator == '/':
             if operand2 == 0:
@@ -152,51 +157,90 @@ class RPNCalculator(tk.Tk):
 
     def toggle_sci_mode(self):
         """Toggle between scientific and normal mode."""
-        self.sci_mode = not self.sci_mode
+        # There are 3 modes.
+        self.sci_mode = (self.sci_mode + 1) % 3  # Change to next mode
 
-        if self.sci_mode:
-            # Change button labels to scientific mode
-            # and update handlers
-            self.button_objs['sci'].config(bg='orange')
-            self.button_objs['√'].config(text='n\u221a')
-            self.button_objs['√'].config(command=self.create_button_handler('n\u221a'))
-            self.button_objs['/'].config(text='1/x')
-            self.button_objs['/'].config(command=self.create_button_handler('1/x'))
-            self.button_objs['*'].config(text='tan')
-            self.button_objs['*'].config(command=self.create_button_handler('tan'))
-            self.button_objs['-'].config(text='cos')
-            self.button_objs['-'].config(command=self.create_button_handler('cos'))
-            self.button_objs['+'].config(text='sin')
-            self.button_objs['+'].config(command=self.create_button_handler('sin'))
-            self.button_objs['π'].config(text='\u03c4')
-            self.button_objs['π'].config(command=self.create_button_handler('\u03c4'))
-            self.button_objs['%'].config(text='e')
-            self.button_objs['%'].config(command=self.create_button_handler('e'))
-            self.button_objs['÷'].config(text='ln')
-            self.button_objs['÷'].config(command=self.create_button_handler('ln'))
-            self.button_objs['^'].config(text='log')
-            self.button_objs['^'].config(command=self.create_button_handler('log'))
-        else:
-            # Revert back to normal mode
-            self.button_objs['sci'].config(bg='lightyellow')
-            self.button_objs['√'].config(text='√')
-            self.button_objs['√'].config(command=self.create_button_handler('√'))
-            self.button_objs['/'].config(text='/')
-            self.button_objs['/'].config(command=self.create_button_handler('/'))
-            self.button_objs['*'].config(text='*')
-            self.button_objs['*'].config(command=self.create_button_handler('*'))
-            self.button_objs['-'].config(text='-')
-            self.button_objs['-'].config(command=self.create_button_handler('-'))
-            self.button_objs['+'].config(text='+')
-            self.button_objs['+'].config(command=self.create_button_handler('+'))
-            self.button_objs['π'].config(text='\u03c0')
-            self.button_objs['π'].config(command=self.create_button_handler('π'))
-            self.button_objs['%'].config(text='%')
-            self.button_objs['%'].config(command=self.create_button_handler('%'))
-            self.button_objs['÷'].config(text='÷')
-            self.button_objs['÷'].config(command=self.create_button_handler('÷'))
-            self.button_objs['^'].config(text='^')
-            self.button_objs['^'].config(command=self.create_button_handler('^'))
+        sci_button_colors = ['#ffa', '#fd6', '#fa0']
+        # sci_button_texts = ['Sci', 'sCi', 'scI']
+        sci_layouts = [{'√': '√',
+                        '/': '/',
+                        '\u00d7': '\u00d7',  # times
+                        '-': '-',
+                        '+': '+',
+                        '\u03c0': '\u03c0',  # pi
+                        '%': '%',
+                        '÷': '÷',
+                        '^': '^',
+                        },
+                       {'√': 'n\u221a',
+                        '/': '1/x',
+                        '\u00d7': 'tan',
+                        '-': 'cos',
+                        '+': 'sin',
+                        '\u03c0': '\u03c4',  # pi tau
+                        '%': 'e',
+                        '÷': 'ln',
+                        '^': 'log',
+                        },
+                       {'√': 'x',
+                        '/': 'y',
+                        '\u00d7': 'atan',
+                        '-': 'acos',
+                        '+': 'asin',
+                        '\u03c0': 'z',  # pi
+                        '%': 'E',
+                        '÷': 'w',
+                        '^': 'Æ',
+                        }
+                       ]
+
+        # Change button labels to scientific mode and update handlers
+        for k, v in sci_layouts[self.sci_mode].items():
+            self.button_objs[k].config(text=v)
+            self.button_objs[k].config(command=self.create_button_handler(v))
+
+        # Update sci button
+        self.button_objs['sci'].config(bg=sci_button_colors[self.sci_mode])
+
+        # self.button_objs['√'].config(text='n\u221a')
+        # self.button_objs['√'].config(command=self.create_button_handler('n\u221a'))
+        # self.button_objs['/'].config(text='1/x')
+        # self.button_objs['/'].config(command=self.create_button_handler('1/x'))
+        # self.button_objs['*'].config(text='tan')
+        # self.button_objs['*'].config(command=self.create_button_handler('tan'))
+        # self.button_objs['-'].config(text='cos')
+        # self.button_objs['-'].config(command=self.create_button_handler('cos'))
+        # self.button_objs['+'].config(text='sin')
+        # self.button_objs['+'].config(command=self.create_button_handler('sin'))
+        # self.button_objs['π'].config(text='\u03c4')
+        # self.button_objs['π'].config(command=self.create_button_handler('\u03c4'))
+        # self.button_objs['%'].config(text='e')
+        # self.button_objs['%'].config(command=self.create_button_handler('e'))
+        # self.button_objs['÷'].config(text='ln')
+        # self.button_objs['÷'].config(command=self.create_button_handler('ln'))
+        # self.button_objs['^'].config(text='log')
+        # self.button_objs['^'].config(command=self.create_button_handler('log'))
+        # else:
+        #     # Revert back to normal mode
+        #     self.button_objs['sci'].config(bg='lightyellow')
+        #     self.button_objs['√'].config(text='√')
+        #     self.button_objs['√'].config(command=self.create_button_handler('√'))
+        #     self.button_objs['/'].config(text='/')
+        #     self.button_objs['/'].config(command=self.create_button_handler('/'))
+        #     self.button_objs['*'].config(text='*')
+        #     self.button_objs['*'].config(command=self.create_button_handler('*'))
+        #     self.button_objs['-'].config(text='-')
+        #     self.button_objs['-'].config(command=self.create_button_handler('-'))
+        #     self.button_objs['+'].config(text='+')
+        #     self.button_objs['+'].config(command=self.create_button_handler('+'))
+        #     self.button_objs['π'].config(text='\u03c0')
+        #     self.button_objs['π'].config(command=self.create_button_handler('π'))
+        #     self.button_objs['%'].config(text='%')
+        #     self.button_objs['%'].config(command=self.create_button_handler('%'))
+        #     self.button_objs['÷'].config(text='÷')
+        #     self.button_objs['÷'].config(command=self.create_button_handler('÷'))
+        #     self.button_objs['^'].config(text='^')
+        #     self.button_objs['^'].config(command=self.create_button_handler('^'))
 
     def on_button_click(self, value):
         """Handle button click: add value to the input field
@@ -207,7 +251,7 @@ class RPNCalculator(tk.Tk):
         else:
             # For operators, we insert the operator and immediately calculate
             if value in self.operators:
-                # For 2-operand operators like '+', '-', '*', '/', etc.
+                # For 2-operand operators like '+', '-', '\u00d7', '/', etc.
                 self.entry.insert(tk.END, value)
                 self.add_to_stack()  # Automatically trigger calculation
             else:
@@ -221,7 +265,7 @@ class RPNCalculator(tk.Tk):
         self.history.append(current_text)
         if current_text:
             if current_text in self.operator_2:
-                # {'+', '-', '*', '/', '^', '\u00f7', '%'}:
+                # {'+', '-', '\u00d7', '/', '^', '\u00f7', '%'}:
                 # Add operator to stack
                 self.stack.append(current_text)
                 # Clear entry field after adding operator
@@ -288,8 +332,8 @@ class RPNCalculator(tk.Tk):
 
     def update_display(self):
         """Update the stack display label."""
-        self.stack_label.config(text=f"{self.stack}")  # Update stack display
-        self.history_label.config(text=f"{self.history}")  # Update stack display
+        self.stack_label.config(text=f"Stack: {self.stack}")  # Update stack display
+        self.history_label.config(text=f"History: {self.history}")  # Update stack display
 
 
 # Create the GUI application

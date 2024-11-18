@@ -7,7 +7,7 @@ class RPNCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("RPN Calculator")
-        self.geometry("320x420")
+        self.geometry("320x380")
         self.stack = []       # Stack for RPN calculation
         self.history = []        # List of input
 
@@ -22,13 +22,13 @@ class RPNCalculator(tk.Tk):
 
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Arial", 14),
-                              width=20, borderwidth=2, relief="solid")
-        self.entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
+                              width=10, borderwidth=1, relief="solid")
+        self.entry.grid(row=0, column=0, columnspan=2, padx=0, pady=6)
 
         # Define button layout and colors
         self.buttons = [
-            ('\u221a', 1, 3, 'lightgreen'),
-            ('sci', 1, 4, 'lightyellow'),
+            ('\u221a', 2, 3, 'lightgreen'),
+            ('sci', 2, 4, 'lightyellow'),
             ('7', 3, 0, 'lightblue'), ('8', 3, 1, 'lightblue'),
             ('9', 3, 2, 'lightblue'), ('/', 3, 3, 'lightgreen'),
             ('\u03c0', 3, 4, 'lightgreen'),
@@ -61,16 +61,16 @@ class RPNCalculator(tk.Tk):
         self.clear_button = tk.Button(self, text="Clear", font=("Arial", 14),
                                       width=4, height=1, bg='lightgray',
                                       command=self.clear)
-        self.clear_button.grid(row=1, column=0, pady=5)
+        self.clear_button.grid(row=2, column=0, pady=5)
 
         self.stack_label = tk.Label(self, text="[]", font=("Arial", 12),
-                                    width=25, height=2)
-        self.stack_label.grid(row=7, column=0, columnspan=4, padx=10, pady=10)
+                                    width=15, height=2, anchor="w")
+        self.stack_label.grid(row=0, column=2, columnspan=3, padx=1, pady=5)
 
         self.history_label = tk.Label(self, text="[]", font=("Arial", 12),
-                                      width=25, height=2, anchor="e")
-        self.history_label.grid(row=8, column=0, columnspan=5,
-                                padx=10, pady=10)
+                                      width=32, height=2, anchor="e")
+        self.history_label.grid(row=1, column=0, columnspan=5,
+                                padx=1, pady=2)
 
     def create_button_handler(self, text):
         """Returns a function that calls

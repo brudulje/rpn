@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import math
 import random
-
+import re
 
 class RPNCalculator(tk.Tk):
     def __init__(self):
@@ -24,10 +24,15 @@ class RPNCalculator(tk.Tk):
                            'sin', 'cos', 'tan',
                            'asin', 'acos', 'atan',
                            'ln', 'log', 'lg2',
-                           '1/x', '!'}
+                           '1/x', '!', '='}
         self.operator_0 = {'\u03c0', '\u03c4', '\u03c6', 'e', 'Rand'}
         # pi, tau, phi, e
         self.operators = self.operator_0 | self.operator_1 | self.operator_2
+
+        # Regex magic to allow operators to be entered together with the
+        # last number before the operator
+        self.operator_pattern = r'^[+-]?\d*\.?\d+([' + '|'\
+            .join(map(re.escape, self.operators)) + r'])'
 
         self.sci_mode = 0  # Initially not in scientific mode
 
@@ -90,7 +95,7 @@ class RPNCalculator(tk.Tk):
         self.enter_button = tk.Button(self, text="Enter",
                                       font=("Lucida Sans Unicode", 14),
                                       width=4, height=1, bg='darkgray',
-                                      command=self.add_to_stack)
+                                      command=self.process_input)
         self.enter_button.grid(row=7, column=2, pady=5)
 
     def create_button_handler(self, text):
@@ -166,7 +171,8 @@ class RPNCalculator(tk.Tk):
             return math.atan(operand)
         elif operator == '!':
             return math.factorial(operand)
-
+        elif operator == '=':  # Rounds last operand to an int
+            return int(operand)
         # elif operator == 'x^2':  # Depricated
         #     return operand ** 2
 
@@ -245,62 +251,158 @@ class RPNCalculator(tk.Tk):
         else:
             # For operators, we insert the operator and immediately calculate
             if value in self.operators:
-                # For 2-operand operators like '+', '-', '\u00d7', '/', etc.
+                # For operators like '+', '-', '\u00d7', '/', etc.
                 self.entry.insert(tk.END, value)
-                self.add_to_stack()  # Automatically trigger calculation
+                self.process_input()  # Automatically trigger calculation
             else:
                 # For numbers, just insert them into the entry field
                 self.entry.insert(tk.END, value)
 
-    def add_to_stack(self):
-        """Add the current value (operand or operator) to the stack
-        when Enter is pressed."""
+
+    def process_operator(self, operator, operand_count, eval_function=None):
+        """
+        Helper function to handle the common tasks for processing operators.
+        """
+        self.stack.append(operator)
+        self.entry.delete(0, tk.END)  # Clear the entry field after adding operator
+
+        if eval_function:
+            result = eval_function(self.stack[-operand_count:])
+            self.stack = self.stack[:-operand_count]  # Remove the operands from the stack
+            self.stack.append(result)
+
+
+    def process_number(self, current_text):
+        """
+        Helper function to handle the processing of a number.
+        """
+        try:
+            # Try to convert to integer or float
+            value = int(current_text) if "." not in current_text else float(current_text)
+            self.stack.append(value)
+            self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+        except ValueError:
+            messagebox.showerror("Error", f"Invalid number: {current_text}")
+
+    def process_input(self):
+        """Add the current value (operand or operator) to the stack when Enter is pressed."""
         current_text = self.entry.get().strip()
         self.history.append(current_text)
+
         if current_text:
-            if current_text in self.operator_2:
-                # Add operator to stack
-                self.stack.append(current_text)
-                # Clear entry field after adding operator
-                self.entry.delete(0, tk.END)
-                # Evaluate immediately after adding an operator
-                result = self.evaluate_two(self.stack[-3:])
-                # self.stack= self.stack[:-3].append(result)  # Nope!
-                self.stack = self.stack[:-3]
-                self.stack.append(result)
+
+            # Check if the current_text matches the operator pattern (number + operator)
+            match = re.match(self.operator_pattern, current_text)
+
+            if match:
+                # Extract the number and operator from the matched string
+                number = match.group(0)[:-len(match.group(1))]  # Everything except the operator
+                operator = match.group(1)  # The operator part
+
+                # Add number to stack
+                self.process_number(number)
+
+                # Add operator to stack and evaluate
+                if operator in self.operator_2:
+                    self.process_operator(operator, 3, self.evaluate_two)
+                elif operator in self.operator_1:
+                    self.process_operator(operator, 2, self.evaluate_one)
+                elif operator in self.operator_0:
+                    result = self.evaluate_zero(operator)
+                    self.stack.append(result)
+                    self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+
+            elif current_text in self.operator_2:
+                # Add operator to stack and evaluate immediately
+                self.process_operator(current_text, 3, self.evaluate_two)
             elif current_text in self.operator_1:
-                # Single operand operators
-                self.stack.append(current_text)
-                # Clear entry field after adding operator
-                self.entry.delete(0, tk.END)
-                result = self.evaluate_one(self.stack[-2:])
-                self.stack = self.stack[:-2]
-                self.stack.append(result)
+                # Add single operand operator to stack and evaluate
+                self.process_operator(current_text, 2, self.evaluate_one)
             elif current_text in self.operator_0:
+                # Zero-operand operator, just evaluate
                 result = self.evaluate_zero(current_text)
-                # Clear the entry field after adding to stack
-                self.entry.delete(0, tk.END)
-                # self.stack = self.stack[:-1]
                 self.stack.append(result)
-            else:  # Should be a number
-                try:
-                    if "." not in current_text:
-                        # Should be an int
-                        value = int(current_text)
-                    else:
-                        # Try to convert the text to a float
-                        value = float(current_text)
-                    #  and add it to the stack
-                    self.stack.append(value)
-                    # Clear the entry field after adding to stack
-                    self.entry.delete(0, tk.END)
-                except ValueError:
-                    messagebox.showerror("Error", f"Invalid number: {current_text}")
+                self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+            else:
+                # Process a number
+                self.process_number(current_text)
 
             # Always update the stack_label to show the current stack
             self.update_display()
+
         else:
             messagebox.showerror("Error", "Please enter a valid number or operator.")
+
+    # def process_input(self):#, current_text):
+    # # def add_to_stack(self):
+    #     """Add the current value (operand or operator) to the stack
+    #     when Enter is pressed."""
+    #     current_text = self.entry.get().strip()
+    #     print(current_text)
+    #     self.history.append(current_text)
+    #     if current_text:
+    #         print("Yes, ", current_text)
+    #         if current_text in self.operator_2:
+    #             # Add operator to stack and evaluate immediately
+    #             self.process_operator(current_text, 3, self.evaluate_two)
+    #         elif current_text in self.operator_1:
+    #             # Add single operand operator to stack and evaluate
+    #             self.process_operator(current_text, 2, self.evaluate_one)
+    #         elif current_text in self.operator_0:
+    #             # Zero-operand operator, just evaluate
+    #             result = self.evaluate_zero(current_text)
+    #             self.stack.append(result)
+    #             self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+    #         else:
+    #             print("Number")
+    #             # Process a number
+    #             self.process_number(current_text)
+    #         # Always update the stack_label to show the current stack
+    #         self.update_display()
+    #     else:
+    #         messagebox.showerror("Error", "Please enter a valid number or operator.")
+
+
+        # if current_text:
+        #     if current_text in self.operator_2:
+        #         # Add operator to stack
+        #         self.stack.append(current_text)
+        #         # Clear entry field after adding operator
+        #         self.entry.delete(0, tk.END)
+        #         # Evaluate immediately after adding an operator
+        #         result = self.evaluate_two(self.stack[-3:])
+        #         # self.stack= self.stack[:-3].append(result)  # Nope!
+        #         self.stack = self.stack[:-3]
+        #         self.stack.append(result)
+        #     elif current_text in self.operator_1:
+        #         # Single operand operators
+        #         self.stack.append(current_text)
+        #         # Clear entry field after adding operator
+        #         self.entry.delete(0, tk.END)
+        #         result = self.evaluate_one(self.stack[-2:])
+        #         self.stack = self.stack[:-2]
+        #         self.stack.append(result)
+        #     elif current_text in self.operator_0:
+        #         result = self.evaluate_zero(current_text)
+        #         # Clear the entry field after adding to stack
+        #         self.entry.delete(0, tk.END)
+        #         # self.stack = self.stack[:-1]
+        #         self.stack.append(result)
+        #     else:  # Should be a number
+        #         try:
+        #             if "." not in current_text:
+        #                 # Should be an int
+        #                 value = int(current_text)
+        #             else:
+        #                 # Try to convert the text to a float
+        #                 value = float(current_text)
+        #             #  and add it to the stack
+        #             self.stack.append(value)
+        #             # Clear the entry field after adding to stack
+        #             self.entry.delete(0, tk.END)
+        #         except ValueError:
+        #             messagebox.showerror("Error", f"Invalid number: {current_text}")
+
 
     def clear(self):
         """Clear various variables when the Clear button is pressed."""

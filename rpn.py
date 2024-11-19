@@ -4,22 +4,21 @@ import math
 import random
 import re
 
+
 class RPNCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("RPN Calculator")
         self.geometry("330x400")
-        self.stack = []       # Stack for RPN calculation
-        self.history = []        # List of input
+        self.stack = []  # Stack for RPN calculation
+        self.history = []  # List of input
 
-                        # '^': '=',  # Joke
         self.operator_2 = {'+', '-', '\u00d7',  # times
                            '/', '^', '\u00f7',  # int div
-                           '%','n\u221a',  # nth root
+                           '%', 'n\u221a',  # nth root
                            '\u2295',  # circled pluss
                            }
 
-        # ÷ \u00f7 pi \u03c0 tau \u03c4 √ \u221a
         self.operator_1 = {'\u221a',  # root
                            'sin', 'cos', 'tan',
                            'asin', 'acos', 'atan',
@@ -33,6 +32,53 @@ class RPNCalculator(tk.Tk):
         # last number before the operator
         self.operator_pattern = r'^[+-]?\d*\.?\d+([' + '|'\
             .join(map(re.escape, self.operators)) + r'])'
+
+        # Dictionary of help texts for each button
+        self.help_texts = {
+            '.': "Decimal point. Separates the whole number from the fraction.",
+            '0': "0; Number zero.",
+            '1': "1; Number one.",
+            '2': "2; Never first, but close.",
+            '3': "3; First odd prime.",
+            '4': "4; Four in a row.",
+            '5': "5; Five is a handful.",
+            '6': "6; Six. First rectangular number.",
+            '7': "7; Seven. An eccelent choise.",
+            '8': "8; Eight. The first digit in alphabetical order.",
+            '9': "9; Nine. First odd square.",
+            'π': "Pi (π) is a mathematical constant approximately equal to 3.14159.",
+            '\u03c4': "Tau = 2 * pi.",
+            'e': "Euler's number (e) is a mathematical constant approximately equal to 2.71828.",
+            '\u03c6': "Phi is the golden ratio. 1 / phi = phi - 1.",
+            '+': "Addition operator. Adds two numbers.",
+            '-': "Subtraction operator. Subtracts the second number from the first.",
+            '\u00d7': "Multiplication operator. Multiplies two numbers.",
+            '/': "Division operator. Divides the first number by the second.",
+            '^': "Exponentiation operator. Raises the first number to the power of the second.",
+            '÷': "Integer division. Returns the integer part after division.",
+            '%': "Modulus operator. Returns the remainder of the division of two numbers.",
+            '√': "Square root operator. Returns the square root of a number.",
+            'sin': "Sine function. Returns the sine of an angle (in radians).",
+            'cos': "Cosine function. Returns the cosine of an angle (in radians).",
+            'tan': "Tangent function. Returns the tangent of an angle (in radians).",
+            'asin': "Inverse sine function. Returns the inverse of sin.",
+            'acos': "Inverse cosine function. Returns the inverse of cos.",
+            'atan': "Inverse tangent function. Returns the inverse of tan",
+            'ln': "Natural logarithm function. Returns the natural logarithm of a number.",
+            'lg2': "Base-2 logarithm function. Returns the logarithm of a number with base 2.",
+            'log': "Base-10 logarithm function. Returns the logarithm of a number with base 10.",
+            '1/x': "Reciprocal operator. Returns the reciprocal (1 divided by the number).",
+            '!': "Factorial function. Returns the factorial of a number.",
+            '=': "Rounds the number to the nearest integer.",
+            'Rand': "Generates a random number between 0 and 1.",
+            'n√': "Nth root operator. Returns the nth root of the first number.",
+            '\u2295': "Circled Plus operator. Returns the Euclidean norm (distance) between two numbers.",
+            'sci': "Toggle various scientific functions.",
+            '?' : "This is the help button. Click this and another button to get help on that other button.",
+        }
+
+        # To track if help mode is active
+        self.help_mode = False
 
         self.sci_mode = 0  # Initially not in scientific mode
 
@@ -60,6 +106,13 @@ class RPNCalculator(tk.Tk):
                                       width=4, height=1, bg='lightgray',
                                       command=self.clear)
         self.clear_button.grid(row=3, column=0, pady=5)
+
+        # "Help" button to clear the input
+        self.help_button = tk.Button(self, text="?",
+                                     font=("Lucida Sans Unicode", 14),
+                                     width=4, height=1, bg='#6b6',#bg='#5a5',
+                                     command=self.activate_help)
+        self.help_button.grid(row=3, column=1, pady=5)
 
         # Define button layout and colors
         self.buttons = [
@@ -230,7 +283,7 @@ class RPNCalculator(tk.Tk):
                         '\u03c0': '\u03c6',  # phi
                         '%': '!',
                         '÷': 'lg2',
-                        '^': '=',  # Joke
+                        '^': '=',
                         }
                        ]
 
@@ -242,35 +295,43 @@ class RPNCalculator(tk.Tk):
         # Update sci button bg color
         self.button_objs['sci'].config(bg=sci_button_colors[self.sci_mode])
 
-    def on_button_click(self, value):
-        """Handle button click: add value to the input field
-        and trigger calculation."""
-        if value == 'sci':
+    def on_button_click(self, button_text):
+        """Handle button click."""
+        # print(button_text)
+        if self.help_mode:
+            # Show help text for the clicked button
+            help_text = self.help_texts.get(button_text, "No help available for this button.")
+            messagebox.showinfo("Help", help_text)
+            self.deactivate_help()
+        elif button_text == 'sci':
             # Toggle the sci mode when the "sci" button is clicked
             self.toggle_sci_mode()
         else:
+            # print("not sci")
             # For operators, we insert the operator and immediately calculate
-            if value in self.operators:
+            if button_text in self.operators:
+                # print("op")
                 # For operators like '+', '-', '\u00d7', '/', etc.
-                self.entry.insert(tk.END, value)
+                self.entry.insert(tk.END, button_text)
                 self.process_input()  # Automatically trigger calculation
             else:
+                # print("num")
                 # For numbers, just insert them into the entry field
-                self.entry.insert(tk.END, value)
-
+                self.entry.insert(tk.END, button_text)
 
     def process_operator(self, operator, operand_count, eval_function=None):
         """
         Helper function to handle the common tasks for processing operators.
         """
         self.stack.append(operator)
-        self.entry.delete(0, tk.END)  # Clear the entry field after adding operator
+        # Clear the entry field after adding operator
+        self.entry.delete(0, tk.END)
 
         if eval_function:
             result = eval_function(self.stack[-operand_count:])
-            self.stack = self.stack[:-operand_count]  # Remove the operands from the stack
+            # Remove the operands from the stack
+            self.stack = self.stack[:-operand_count]
             self.stack.append(result)
-
 
     def process_number(self, current_text):
         """
@@ -278,25 +339,34 @@ class RPNCalculator(tk.Tk):
         """
         try:
             # Try to convert to integer or float
-            value = int(current_text) if "." not in current_text else float(current_text)
+            # value = int(current_text) if "." not in current_text
+            # else float(current_text)
+            if "." not in current_text:
+                value = int(current_text)
+            else:
+                float(current_text)
             self.stack.append(value)
-            self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+            # Clear the entry field after adding to stack
+            self.entry.delete(0, tk.END)
         except ValueError:
             messagebox.showerror("Error", f"Invalid number: {current_text}")
 
     def process_input(self):
-        """Add the current value (operand or operator) to the stack when Enter is pressed."""
+        """Add the current value (operand or operator) to the stack
+        when Enter is pressed."""
         current_text = self.entry.get().strip()
         self.history.append(current_text)
 
         if current_text:
 
-            # Check if the current_text matches the operator pattern (number + operator)
+            # Check if the current_text matches the operator pattern
+            # containing number and operator in one single string
             match = re.match(self.operator_pattern, current_text)
 
             if match:
                 # Extract the number and operator from the matched string
-                number = match.group(0)[:-len(match.group(1))]  # Everything except the operator
+                # Everything except the operator
+                number = match.group(0)[:-len(match.group(1))]
                 operator = match.group(1)  # The operator part
 
                 # Add number to stack
@@ -310,7 +380,8 @@ class RPNCalculator(tk.Tk):
                 elif operator in self.operator_0:
                     result = self.evaluate_zero(operator)
                     self.stack.append(result)
-                    self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+                    # Clear the entry field after adding to stack
+                    self.entry.delete(0, tk.END)
 
             elif current_text in self.operator_2:
                 # Add operator to stack and evaluate immediately
@@ -322,7 +393,8 @@ class RPNCalculator(tk.Tk):
                 # Zero-operand operator, just evaluate
                 result = self.evaluate_zero(current_text)
                 self.stack.append(result)
-                self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
+                # Clear the entry field after adding to stack
+                self.entry.delete(0, tk.END)
             else:
                 # Process a number
                 self.process_number(current_text)
@@ -331,78 +403,8 @@ class RPNCalculator(tk.Tk):
             self.update_display()
 
         else:
-            messagebox.showerror("Error", "Please enter a valid number or operator.")
-
-    # def process_input(self):#, current_text):
-    # # def add_to_stack(self):
-    #     """Add the current value (operand or operator) to the stack
-    #     when Enter is pressed."""
-    #     current_text = self.entry.get().strip()
-    #     print(current_text)
-    #     self.history.append(current_text)
-    #     if current_text:
-    #         print("Yes, ", current_text)
-    #         if current_text in self.operator_2:
-    #             # Add operator to stack and evaluate immediately
-    #             self.process_operator(current_text, 3, self.evaluate_two)
-    #         elif current_text in self.operator_1:
-    #             # Add single operand operator to stack and evaluate
-    #             self.process_operator(current_text, 2, self.evaluate_one)
-    #         elif current_text in self.operator_0:
-    #             # Zero-operand operator, just evaluate
-    #             result = self.evaluate_zero(current_text)
-    #             self.stack.append(result)
-    #             self.entry.delete(0, tk.END)  # Clear the entry field after adding to stack
-    #         else:
-    #             print("Number")
-    #             # Process a number
-    #             self.process_number(current_text)
-    #         # Always update the stack_label to show the current stack
-    #         self.update_display()
-    #     else:
-    #         messagebox.showerror("Error", "Please enter a valid number or operator.")
-
-
-        # if current_text:
-        #     if current_text in self.operator_2:
-        #         # Add operator to stack
-        #         self.stack.append(current_text)
-        #         # Clear entry field after adding operator
-        #         self.entry.delete(0, tk.END)
-        #         # Evaluate immediately after adding an operator
-        #         result = self.evaluate_two(self.stack[-3:])
-        #         # self.stack= self.stack[:-3].append(result)  # Nope!
-        #         self.stack = self.stack[:-3]
-        #         self.stack.append(result)
-        #     elif current_text in self.operator_1:
-        #         # Single operand operators
-        #         self.stack.append(current_text)
-        #         # Clear entry field after adding operator
-        #         self.entry.delete(0, tk.END)
-        #         result = self.evaluate_one(self.stack[-2:])
-        #         self.stack = self.stack[:-2]
-        #         self.stack.append(result)
-        #     elif current_text in self.operator_0:
-        #         result = self.evaluate_zero(current_text)
-        #         # Clear the entry field after adding to stack
-        #         self.entry.delete(0, tk.END)
-        #         # self.stack = self.stack[:-1]
-        #         self.stack.append(result)
-        #     else:  # Should be a number
-        #         try:
-        #             if "." not in current_text:
-        #                 # Should be an int
-        #                 value = int(current_text)
-        #             else:
-        #                 # Try to convert the text to a float
-        #                 value = float(current_text)
-        #             #  and add it to the stack
-        #             self.stack.append(value)
-        #             # Clear the entry field after adding to stack
-        #             self.entry.delete(0, tk.END)
-        #         except ValueError:
-        #             messagebox.showerror("Error", f"Invalid number: {current_text}")
-
+            messagebox.showerror("Error",
+                                 "Please enter a valid number or operator.")
 
     def clear(self):
         """Clear various variables when the Clear button is pressed."""
@@ -428,6 +430,24 @@ class RPNCalculator(tk.Tk):
         # Update stack display
         self.history_label.config(text=f"History: {self.history}")
 
+    def activate_help(self):
+        """Activate help mode and wait for user to click a button."""
+        if self.help_mode:
+            # Provide help on help button
+            help_text = self.help_texts.get('?', "No help available for this button.")
+            messagebox.showinfo("Help", help_text)
+            self.deactivate_help()
+        else:
+            self.help_mode = True
+            # set color '#0a6'
+            self.help_button.config(bg='#080')  # 'lightgreen #9e9
+            self.entry.delete(0, tk.END)  # Clear the entry field to indicate help mode
+            self.entry.insert(tk.END, "Click a button for help.")  # Display help mode message
+
+    def deactivate_help(self):
+        self.help_button.config(bg='#6b6')
+        self.entry.delete(0, tk.END)
+        self.help_mode = False
 
 # Create the GUI application
 if __name__ == "__main__":

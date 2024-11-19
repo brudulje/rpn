@@ -9,7 +9,7 @@ class RPNCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("RPN Calculator")
-        self.geometry("330x400")
+        self.geometry("330x360")
         self.stack = []  # Stack for RPN calculation
         self.history = []  # List of input
 
@@ -90,29 +90,55 @@ class RPNCalculator(tk.Tk):
         # Shoe the stack
         self.stack_label = tk.Label(self, text="Stack: []",
                                     font=("Lucida Sans Unicode", 12),
-                                    width=30, height=2, anchor="e")
+                                    width=30, height=1, anchor="e")
         self.stack_label.grid(row=1, column=0, columnspan=5, padx=1, pady=5)
 
         # Shoe input history
         self.history_label = tk.Label(self, text="History: []",
                                       font=("Lucida Sans Unicode", 12),
-                                      width=30, height=2, anchor="e")
-        self.history_label.grid(row=2, column=0, columnspan=5,
-                                padx=1, pady=2)
+                                      width=30, height=1, anchor="e")
+        self.history_label.grid(row=2, column=0, columnspan=5, padx=1, pady=2)
 
         # "Clear" button to clear the input
         self.clear_button = tk.Button(self, text="Clear",
                                       font=("Lucida Sans Unicode", 14),
-                                      width=4, height=1, bg='lightgray',
+                                      width=6, height=1, bg='lightgray',
                                       command=self.clear)
-        self.clear_button.grid(row=3, column=0, pady=5)
+        self.clear_button.grid(row=3, column=0, columnspan=2, pady=5, sticky="w")
 
+        # "Enter" button to add current value to the stack
+        self.enter_button = tk.Button(self, text="Enter",
+                                      font=("Lucida Sans Unicode", 14),
+                                      width=6, height=1, bg='darkgray',
+                                      command=self.process_input)
+        self.enter_button.grid(row=3, column=1, columnspan=2, pady=5, sticky="e")
+
+        # Make columns 0, 1, and 2 stretch equally
+        # self.grid_columnconfigure(0, weight=1)
+        # self.grid_columnconfigure(1, weight=1)
+        # self.grid_columnconfigure(2, weight=1)
+
+
+        # # "Clear" button to clear the input
+        # self.clear_button = tk.Button(self, text="Clear",
+        #                               font=("Lucida Sans Unicode", 14),
+        #                               width=4, height=1, bg='lightgray',
+        #                               command=self.clear)
+        # self.clear_button.grid(row=3, column=0, pady=5, sticky="ew")
+
+        # # "Enter" button to add current value to the stack
+        # self.enter_button = tk.Button(self, text="Enter",
+        #                               font=("Lucida Sans Unicode", 14),
+        #                               width=4, height=1, bg='darkgray',
+        #                               command=self.process_input)
+        # self.enter_button.grid(row=3, column=2, pady=5, sticky="ew")
+        # self.grid_columnconfigure(1, weight=1)  # Set the middle column to stretch
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
                                      width=4, height=1, bg='#6b6',#bg='#5a5',
                                      command=self.activate_help)
-        self.help_button.grid(row=3, column=1, pady=5)
+        self.help_button.grid(row=7, column=2, pady=5)
 
         # Define button layout and colors
         self.buttons = [
@@ -143,13 +169,6 @@ class RPNCalculator(tk.Tk):
 
         # Change font on the pi button
         self.button_objs['π'].config(font=("Symbol", 14))
-
-        # "Enter" button to add current value to the stack
-        self.enter_button = tk.Button(self, text="Enter",
-                                      font=("Lucida Sans Unicode", 14),
-                                      width=4, height=1, bg='darkgray',
-                                      command=self.process_input)
-        self.enter_button.grid(row=7, column=2, pady=5)
 
     def create_button_handler(self, text):
         """Returns a function that calls
@@ -215,6 +234,8 @@ class RPNCalculator(tk.Tk):
         elif operator == 'log':
             return math.log10(operand)
         elif operator == '1/x':
+            print(operator, operand)
+            # TODO: FIx operator. Broken by regex, also nth root
             return 1 / operand
         elif operator == 'asin':
             return math.asin(operand)

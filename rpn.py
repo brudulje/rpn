@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import math
+import random
 
 
 class RPNCalculator(tk.Tk):
@@ -11,11 +12,21 @@ class RPNCalculator(tk.Tk):
         self.stack = []       # Stack for RPN calculation
         self.history = []        # List of input
 
-        self.operator_2 = {'+', '-', '\u00d7', '/', '^', '\u00f7', '%','n\u221a'}
+                        # '^': '=',  # Joke
+        self.operator_2 = {'+', '-', '\u00d7',  # times
+                           '/', '^', '\u00f7',  # int div
+                           '%','n\u221a',  # nth root
+                           '\u2295',  # circled pluss
+                           }
+
         # ÷ \u00f7 pi \u03c0 tau \u03c4 √ \u221a
-        self.operator_1 = {'\u221a', 'sin', 'cos', 'tan',
-                           'ln', 'log', '1/x'}
-        self.operator_0 = {'\u03c0', '\u03c4', 'e'}
+        self.operator_1 = {'\u221a',  # root
+                           'sin', 'cos', 'tan',
+                           'asin', 'acos', 'atan',
+                           'ln', 'log', 'lg2',
+                           '1/x', '!'}
+        self.operator_0 = {'\u03c0', '\u03c4', '\u03c6', 'e', 'Rand'}
+        # pi, tau, phi, e
         self.operators = self.operator_0 | self.operator_1 | self.operator_2
 
         self.sci_mode = 0  # Initially not in scientific mode
@@ -117,6 +128,8 @@ class RPNCalculator(tk.Tk):
             result = operand1 % operand2
         elif operator == 'n\u221a':
             result = operand1 ** (1/operand2)
+        elif operator == '\u2295':  # Circled pluss
+            result = math.sqrt(operand1**2 + operand2**2)
         else:
             raise ValueError(f"Unknown operator {operator}.")
 
@@ -139,10 +152,21 @@ class RPNCalculator(tk.Tk):
             return math.tan(operand)
         elif operator == 'ln':
             return math.log(operand)
+        elif operator == 'lg2':
+            return math.log2(operand)
         elif operator == 'log':
             return math.log10(operand)
         elif operator == '1/x':
             return 1 / operand
+        elif operator == 'asin':
+            return math.asin(operand)
+        elif operator == 'acos':
+            return math.acos(operand)
+        elif operator == 'atan':
+            return math.atan(operand)
+        elif operator == '!':
+            return math.factorial(operand)
+
         # elif operator == 'x^2':  # Depricated
         #     return operand ** 2
 
@@ -151,12 +175,17 @@ class RPNCalculator(tk.Tk):
 
     def evaluate_zero(self, text):
         # {'\u03c0', '\u03c4', 'e'}
-        if text == '\u03c0':
+        if text == '\u03c0':  # pi
             return math.pi
-        elif text == '\u03c4':
+        elif text == '\u03c4':  # tau
             return 2 * math.pi
         elif text == 'e':
             return math.e
+        elif text == '\u03c6':  # phi
+            return (1 + math.sqrt(5))/2
+        elif text == 'Rand':
+            return random.random()
+
         else:
             raise ValueError(f"Unknown operator {text}.")
 
@@ -230,7 +259,6 @@ class RPNCalculator(tk.Tk):
         self.history.append(current_text)
         if current_text:
             if current_text in self.operator_2:
-                # {'+', '-', '\u00d7', '/', '^', '\u00f7', '%'}:
                 # Add operator to stack
                 self.stack.append(current_text)
                 # Clear entry field after adding operator
@@ -241,8 +269,6 @@ class RPNCalculator(tk.Tk):
                 self.stack = self.stack[:-3]
                 self.stack.append(result)
             elif current_text in self.operator_1:
-                # {'\u221a', 'sin', 'cos', 'tan',
-                # 'ln', 'log', 'x^2', '1/x'}
                 # Single operand operators
                 self.stack.append(current_text)
                 # Clear entry field after adding operator
@@ -251,7 +277,6 @@ class RPNCalculator(tk.Tk):
                 self.stack = self.stack[:-2]
                 self.stack.append(result)
             elif current_text in self.operator_0:
-                # {'\u03c0', '\u03c4', 'e'}
                 result = self.evaluate_zero(current_text)
                 # Clear the entry field after adding to stack
                 self.entry.delete(0, tk.END)

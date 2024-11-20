@@ -30,8 +30,6 @@ class RPNCalculator(tk.Tk):
 
         # Regex magic to allow operators to be entered together with the
         # last number before the operator
-        # self.operator_pattern = r'^[+-]?\d*\.?\d+([' + '|'\
-        #     .join(map(re.escape, self.operators)) + r'])'
         self.sorted_operators = sorted(self.operators, key=len, reverse=True)
         # Create a regex pattern to match the longest operator at the end of the string
         pattern = '|'.join(re.escape(op) for op in self.sorted_operators)
@@ -41,18 +39,18 @@ class RPNCalculator(tk.Tk):
         # Dictionary of help texts for each button
         self.help_texts = {
             '.': "Decimal point. Separates the whole number from the fraction.",
-            '0': "0; Number zero.",
-            '1': "1; Number one.",
+            '0': "0; Zero, the first digit and the basis of positional notation.",
+            '1': "1; First and foremost. Number one.",
             '2': "2; Never first, but close.",
             '3': "3; First odd prime.",
             '4': "4; Four in a row.",
             '5': "5; Five is a handful.",
             '6': "6; Six. First rectangular number.",
-            '7': "7; Seven. An eccelent choise.",
+            '7': "7; Seven. An excellent choise.",
             '8': "8; Eight. The first digit in alphabetical order.",
             '9': "9; Nine. First odd square.",
-            'π': "Pi (π) is a mathematical constant approximately equal to 3.14159.",
-            '\u03c4': "Tau = 2 * pi.",
+            'π': "Pi is the circumference of a circle divided by its diameter.",
+            '\u03c4': "Tau is the circumference of a circle divided by its radius.",
             'e': "Euler's number (e) is a mathematical constant approximately equal to 2.71828.",
             '\u03c6': "Phi is the golden ratio. 1 / phi = phi - 1.",
             '+': "Addition operator. Adds two numbers.",
@@ -80,6 +78,8 @@ class RPNCalculator(tk.Tk):
             '\u2295': "Circled Plus operator. Returns the Euclidean norm (distance) between two numbers.",
             'sci': "Toggle various scientific functions.",
             '?' : "This is the help button. Click this and another button to get help on that other button.",
+            # 'Clear': "Clears the input. If no input, clears the stack. If no stack, clears history.",
+            # 'Enter': "Transfers your input number to the stack."
         }
 
         # To track if help mode is active
@@ -118,26 +118,6 @@ class RPNCalculator(tk.Tk):
                                       command=self.process_input)
         self.enter_button.grid(row=3, column=1, columnspan=2, pady=5, sticky="e")
 
-        # Make columns 0, 1, and 2 stretch equally
-        # self.grid_columnconfigure(0, weight=1)
-        # self.grid_columnconfigure(1, weight=1)
-        # self.grid_columnconfigure(2, weight=1)
-
-
-        # # "Clear" button to clear the input
-        # self.clear_button = tk.Button(self, text="Clear",
-        #                               font=("Lucida Sans Unicode", 14),
-        #                               width=4, height=1, bg='lightgray',
-        #                               command=self.clear)
-        # self.clear_button.grid(row=3, column=0, pady=5, sticky="ew")
-
-        # # "Enter" button to add current value to the stack
-        # self.enter_button = tk.Button(self, text="Enter",
-        #                               font=("Lucida Sans Unicode", 14),
-        #                               width=4, height=1, bg='darkgray',
-        #                               command=self.process_input)
-        # self.enter_button.grid(row=3, column=2, pady=5, sticky="ew")
-        # self.grid_columnconfigure(1, weight=1)  # Set the middle column to stretch
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
@@ -188,9 +168,16 @@ class RPNCalculator(tk.Tk):
             operand1 = expression[0]
             operand2 = expression[1]
             operator = expression[2]  # Operator
-        except IndexError:
-            raise ValueError("Insufficient operands for the operator.")
+        # except (ValueError, IndexError):
+        #     messagebox.showerror("Error", f"Too few arguments to {expression}.")
 
+        # try:
+            _ = float(operand1)
+            _ = float(operand2)
+        except (ValueError, TypeError, IndexError):
+            # messagebox.showerror("Error", f"{operand1} and {operand2} are not numbers.")
+            messagebox.showerror("Error", f"Can't figure out how to handle {expression}.")
+            return None
         # Perform the operation based on the operator
         if operator == '+':
             result = operand1 + operand2
@@ -199,9 +186,17 @@ class RPNCalculator(tk.Tk):
         elif operator == '\u00d7':  # times
             result = operand1 * operand2
         elif operator == '/':
-            if operand2 == 0:
-                raise ValueError("Division by zero is undefined.")
-            result = operand1 / operand2
+            if operand1 % operand2 == 0:
+                # Keeps the result an int if possible
+                result = operand1 // operand2
+            else:
+                try:
+                    result = operand1 / operand2
+                except ValueError:
+                    messagebox.showerror("Error",
+                                         "Division by zero is undefined.")
+                # # raise ValueError("Division by zero is undefined.")
+                # result = operand1 / operand2
         elif operator == '^':
             result = operand1 ** operand2
         elif operator == '\u00f7':  # Division symbol for integer division
@@ -213,18 +208,27 @@ class RPNCalculator(tk.Tk):
         elif operator == '\u2295':  # Circled pluss
             result = math.sqrt(operand1**2 + operand2**2)
         else:
-            raise ValueError(f"Unknown operator {operator}.")
+            # raise ValueError(f"Unknown operator {operator}.")
+            messagebox.showerror("Error", f"Unknown operator {operator}.")
 
         return result
 
     def evaluate_one(self, expression):
         """Operate operators taking a single operand."""
         # {'\u221a', 'sin', 'cos', 'tan', 'ln', 'log', 'x^2', '1/x'}
-        operand = expression[0]
-        operator = expression[1]
+        try:
+            operand = expression[0]
+            operator = expression[1]
+        except IndexError:
+            messagebox.showerror("Error", f"Too few arguments to {expression}.")
+            return None
+
         if operator == '\u221a':
             if operand < 0:
-                raise ValueError("Root of negative numbers not supported.")
+                # raise ValueError("Root of negative numbers not supported.")
+                messagebox.showerror("Error",
+                                     "Root of negative numbers not supported.")
+
             return math.sqrt(operand)
         elif operator == 'sin':
             return math.sin(operand)
@@ -255,7 +259,9 @@ class RPNCalculator(tk.Tk):
         #     return operand ** 2
 
         else:
-            raise ValueError(f"Unknown operator {operator}.")
+            # raise ValueError(f"Unknown operator {operator}.")
+            messagebox.showerror("Error",
+                                     f"Unknown operator {operator}.")
 
     def evaluate_zero(self, text):
         # {'\u03c0', '\u03c4', 'e'}
@@ -269,9 +275,10 @@ class RPNCalculator(tk.Tk):
             return (1 + math.sqrt(5))/2
         elif text == 'Rand':
             return random.random()
-
         else:
-            raise ValueError(f"Unknown operator {text}.")
+            # raise ValueError(f"Unknown operator {operator}.")
+            messagebox.showerror("Error",
+                                 f"Unknown operator {text}.")
 
     def toggle_sci_mode(self):
         """Toggle between scientific and normal mode."""
@@ -357,7 +364,8 @@ class RPNCalculator(tk.Tk):
             result = eval_function(self.stack[-operand_count:])
             # Remove the operands from the stack
             self.stack = self.stack[:-operand_count]
-            self.stack.append(result)
+            if result is not None:
+                self.stack.append(result)
 
     def process_number(self, current_text):
         """

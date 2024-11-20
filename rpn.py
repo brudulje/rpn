@@ -73,7 +73,7 @@ class RPNCalculator(tk.Tk):
             '1/x': "Reciprocal operator. Returns the reciprocal (1 divided by the number).",
             '2^x': "Raise 2 to the power of x.",
             '!': "Factorial function. Returns the factorial of a number.",
-            '=': "Rounds the number to the nearest integer.",
+            '=': "'=' on an RPN? Yeah, this rounds the number to the nearest integer.",
             'Rand': "Generates a random number between 0 and 1.",
             'n√': "Nth root operator. Returns the nth root of the first number.",
             '\u2295': "Circled Plus operator. Returns the Euclidean norm (distance) between two numbers.",
@@ -136,7 +136,7 @@ class RPNCalculator(tk.Tk):
         self.help_button.grid(row=7, column=2, pady=5)
 ###
         # Initially, set layout to 'small'
-        self.layout = 'wide'  # Set the layout to 'small' initially ('wide')
+        self.layout = 'wide2'  # Set the layout to 'small' initially ('wide')
         self.create_button_layout(self.layout)
 
 
@@ -167,7 +167,7 @@ class RPNCalculator(tk.Tk):
             self.stack_label_grid = (1, 0, 5, '')
             self.history_label_grid = (2, 0, 5, '')
 
-        elif layout == 'wide':
+        elif layout == 'wide1':
             self.geometry("590x330")
 
             # Wide layout (buttons rearranged for a wider view)
@@ -225,6 +225,70 @@ class RPNCalculator(tk.Tk):
                 ('E', 7, 2, self.colors['op']),
             ]
 
+        elif layout == 'wide2':
+            self.geometry("590x330")
+
+            # Wide layout (buttons rearranged for a wider view)
+            self.buttons = [
+                ('7', 4, 6, self.colors['num']),
+                ('8', 4, 7, self.colors['num']),
+                ('9', 4, 8, self.colors['num']),
+                ('/', 7, 5, self.colors['op']),
+                ('\u03c0', 6, 0, self.colors['op']),  # pi(?)
+                ('4', 5, 6, self.colors['num']),
+                ('5', 5, 7, self.colors['num']),
+                ('6', 5, 8, self.colors['num']),
+                ('\u00d7', 6, 5, self.colors['op']),
+                ('%', 5, 4, self.colors['op']),
+                ('1', 6, 6, self.colors['num']),
+                ('2', 6, 7, self.colors['num']),
+                ('3', 6, 8, self.colors['num']),
+                ('-', 5, 5, self.colors['op']),
+                ('\u00f7', 7, 4, self.colors['op']),
+                ('0', 7, 7, self.colors['num']),
+                ('.', 7, 8, self.colors['num']),
+                ('+', 4, 5, self.colors['op']),
+                ('^', 6, 4, self.colors['op']),
+                ('\u221a', 4, 1, self.colors['op']), #('sci', 7, 1, '#ffa'),
+                ('n√', 4, 2, self.colors['op'])
+            ]
+
+            # In wide layout, the Clear, Enter, and Help buttons are repositioned
+            self.clear_button_grid = (3, 5, 2, '')  # Position for the "Clear" button
+            self.clear_button.config(width=10)
+            self.enter_button_grid = (3, 7, 2, '')  # Position for the "Enter" button
+            self.enter_button.config(width=10)
+            self.help_button_grid = (3, 4, 1, '')   # Position for the "Help" button
+            self.entry_grid = (0, 0, 3, '')
+            self.entry.config(width=15)
+            self.stack_label_grid = (0, 3, 6, '')
+            self.stack_label.config(width=36)
+            self.history_label_grid = (2, 0, 9, 'e')
+            self.history_label.config(width=55)
+
+            # New buttons in the wide layout (just an example of adding buttons)
+            self.additional_buttons = [
+                ('Rand', 3, 0, self.colors['op']),
+                ('=', 3, 1, self.colors['op']),
+                ('!', 3, 2, self.colors['op']),
+                ('1/x', 3, 3, self.colors['op']),
+                ('\u03c6', 4, 0, self.colors['op']),  # phi
+                ('n\u221a', 4, 2, self.colors['op']),  # nth root
+                ('2^x', 4, 3, self.colors['op']),  # TODO: implement
+                ('e', 5, 0, self.colors['op']),
+                ('ln', 5, 1, self.colors['op']),
+                ('log', 5, 2, self.colors['op']),
+                ('lg2', 5, 3, self.colors['op']),
+                ('sin', 6, 1, self.colors['op']),
+                ('cos', 6, 2, self.colors['op']),
+                ('tan', 6, 3, self.colors['op']),
+                ('\u03c4', 7, 0, self.colors['op']),  # tau
+                ('asin', 7, 1, self.colors['op']),
+                ('acos', 7, 2, self.colors['op']),
+                ('atan', 7, 3, self.colors['op']),
+                ('\u2295', 4, 4, self.colors['op']),
+                ('E', 7, 6, self.colors['op']),
+            ]
         else:
             print("Invalid layout")
             return
@@ -262,7 +326,7 @@ class RPNCalculator(tk.Tk):
         self.button_objs['π'].config(font=("Symbol", 14))
 
         # Create the additional buttons for the 'wide' layout
-        if layout == 'wide':
+        if layout != 'small':
             for (text, row, col, color) in self.additional_buttons:
                 button = tk.Button(self, text=text,
                                    font=("Lucida Sans Unicode", 14),
@@ -351,7 +415,7 @@ class RPNCalculator(tk.Tk):
             return operand1 * 10 ** operand2
         else:
             # raise ValueError(f"Unknown operator {operator}.")
-            messagebox.showerror("Error", f"Unknown operator {operator}.")
+            messagebox.showerror("Error", f"Unknown 2operator {operator}.")
 
         return result
 
@@ -409,10 +473,11 @@ class RPNCalculator(tk.Tk):
         else:
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
-                                 f"Unknown operator {operator}.")
+                                 f"Unknown 1operator {operator}.")
 
     def evaluate_zero(self, text):
         # {'\u03c0', '\u03c4', 'e'}
+        text = text[0]
         if text == '\u03c0':  # pi
             return math.pi
         elif text == '\u03c4':  # tau
@@ -426,7 +491,8 @@ class RPNCalculator(tk.Tk):
         else:
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
-                                 f"Unknown operator {text}.")
+                                 f"Unknown 0operator {text}.")
+            return None
 
     def toggle_sci_mode(self):
         """Toggle between scientific and normal mode."""
@@ -510,15 +576,13 @@ class RPNCalculator(tk.Tk):
 
         if eval_function:
             result = eval_function(self.stack[-operand_count:])
-            # # Remove the operands from the stack
-            # self.stack = self.stack[:-operand_count]
             if result is not None:
-            # Remove the operands from the stack only if calculation is good
+                # Remove the operands from the stack if calculation is good
                 self.stack = self.stack[:-operand_count]
                 self.stack.append(result)
             else:
-                 # Remove faild operator from stack
-                 self.stack = self.stack[:-1]
+                # Remove failed operator from stack
+                self.stack = self.stack[:-1]
 
     def process_number(self, current_text):
         """
@@ -526,8 +590,6 @@ class RPNCalculator(tk.Tk):
         """
         try:
             # Try to convert to integer or float
-            # value = int(current_text) if "." not in current_text
-            # else float(current_text)
             if "." not in current_text:
                 value = int(current_text)
             else:
@@ -545,7 +607,6 @@ class RPNCalculator(tk.Tk):
         self.history.append(current_text)
 
         if current_text:
-
             match = re.search(self.pattern, current_text)
             # Number and operator entered together.
             if match and match.group(1) and match.group(2):
@@ -556,31 +617,25 @@ class RPNCalculator(tk.Tk):
                 current_text = match.group(2)
 
             if current_text in self.operator_2:
-                # Add operator to stack and evaluate immediately
+                # Operator takes two operands
                 self.process_operator(current_text, 3, self.evaluate_two)
             elif current_text in self.operator_1:
-                # Add single operand operator to stack and evaluate
+                # Operator takes one operand
                 self.process_operator(current_text, 2, self.evaluate_one)
             elif current_text in self.operator_0:
-                # Zero-operand operator, just evaluate
-                result = self.evaluate_zero(current_text)
-                self.stack.append(result)
-                # Clear the entry field after adding to stack
-                self.entry.delete(0, tk.END)
+                # Operator takes no operands
+                self.process_operator(current_text, 1, self.evaluate_zero)
             else:
                 # Process a number
                 self.process_number(current_text)
-
             # Always update the stack_label to show the current stack
             self.update_display()
-
         else:
             messagebox.showerror("Error",
                                  "Please enter a valid number or operator.")
 
     def clear(self):
         """Clear various variables when the Clear button is pressed."""
-        # print(bool(self.stack), bool(self.history))
         if self.entry.get().strip():
             # There is something in the entry field; clear this
             self.entry.delete(0, tk.END)
@@ -606,7 +661,8 @@ class RPNCalculator(tk.Tk):
         """Activate help mode and wait for user to click a button."""
         if self.help_mode:
             # Provide help on help button
-            help_text = self.help_texts.get('?', "No help available for this button.")
+            help_text = self.help_texts.get('?',
+                                            "No help for this button.")
             messagebox.showinfo("Help", help_text)
             self.deactivate_help()
         else:
@@ -614,7 +670,7 @@ class RPNCalculator(tk.Tk):
             # set color '#0a6'
             self.help_button.config(bg='#080')  # 'lightgreen #9e9
             self.entry.delete(0, tk.END)  # Clear the entry field to indicate help mode
-            self.entry.insert(tk.END, "Click a button for help.")  # Display help mode message
+            self.entry.insert(tk.END, "Click for help.")  # Display help mode message
 
     def deactivate_help(self):
         self.help_button.config(bg='#6b6')

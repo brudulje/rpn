@@ -86,6 +86,14 @@ class RPNCalculator(tk.Tk):
         self.help_mode = False
 
         self.sci_mode = 0  # Initially not in scientific mode
+        self.colors = {
+            'num': 'lightblue',
+            'op': 'lightgreen',
+            'sci': '#ffa',
+            'Clear': 'lightgray',
+            'Enter': 'darkgray',
+            '?': '#6b6'
+            }
 
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
@@ -107,79 +115,103 @@ class RPNCalculator(tk.Tk):
         # "Clear" button to clear the input
         self.clear_button = tk.Button(self, text="Clear",
                                       font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1, bg='lightgray',
+                                      width=6, height=1, bg=self.colors["Clear"],
                                       command=self.clear)
         self.clear_button.grid(row=3, column=0, columnspan=2, pady=5, sticky="w")
 
         # "Enter" button to add current value to the stack
         self.enter_button = tk.Button(self, text="Enter",
                                       font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1, bg='darkgray',
+                                      width=6, height=1, bg=self.colors["Enter"],
                                       command=self.process_input)
         self.enter_button.grid(row=3, column=1, columnspan=2, pady=5, sticky="e")
 
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
-                                     width=4, height=1, bg='#6b6',#bg='#5a5',
+                                     width=4, height=1, bg=self.colors["?"],#'#6b6',#bg='#5a5',
                                      command=self.activate_help)
         self.help_button.grid(row=7, column=2, pady=5)
 ###
         # Initially, set layout to 'small'
-        self.layout = 'small'  # Set the layout to 'small' initially (you can change it to 'wide')
+        self.layout = 'wide'  # Set the layout to 'small' initially ('wide')
         self.create_button_layout(self.layout)
+
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout ('small' or 'wide')."""
         if layout == 'small':
             # Small layout (as defined originally)
             self.buttons = [
-                ('\u221a', 3, 3, 'lightgreen'),
+                ('\u221a', 3, 3, self.colors['op']),
                 ('sci', 3, 4, '#ffa'),
-                ('7', 4, 0, 'lightblue'), ('8', 4, 1, 'lightblue'),
-                ('9', 4, 2, 'lightblue'), ('/', 4, 3, 'lightgreen'),
-                ('\u03c0', 4, 4, 'lightgreen'),
-                ('4', 5, 0, 'lightblue'), ('5', 5, 1, 'lightblue'),
-                ('6', 5, 2, 'lightblue'), ('\u00d7', 5, 3, 'lightgreen'),
-                ('%', 5, 4, 'lightgreen'),
-                ('1', 6, 0, 'lightblue'), ('2', 6, 1, 'lightblue'),
-                ('3', 6, 2, 'lightblue'), ('-', 6, 3, 'lightgreen'),
-                ('\u00f7', 6, 4, 'lightgreen'),
-                ('0', 7, 0, 'lightblue'), ('.', 7, 1, 'lightblue'),
-                ('+', 7, 3, 'lightgreen'), ('^', 7, 4, 'lightgreen')
+                ('7', 4, 0, self.colors['num']), ('8', 4, 1, self.colors['num']),
+                ('9', 4, 2, self.colors['num']), ('/', 4, 3, self.colors['op']),
+                ('\u03c0', 4, 4, self.colors['op']),
+                ('4', 5, 0, self.colors['num']), ('5', 5, 1, self.colors['num']),
+                ('6', 5, 2, self.colors['num']), ('\u00d7', 5, 3, self.colors['op']),
+                ('%', 5, 4, self.colors['op']),
+                ('1', 6, 0, self.colors['num']), ('2', 6, 1, self.colors['num']),
+                ('3', 6, 2, self.colors['num']), ('-', 6, 3, self.colors['op']),
+                ('\u00f7', 6, 4, self.colors['op']),
+                ('0', 7, 0, self.colors['num']), ('.', 7, 1, self.colors['num']),
+                ('+', 7, 3, self.colors['op']), ('^', 7, 4, self.colors['op'])
             ]
 
-            self.clear_button_grid = (3, 0, 2, 1)  # Position for the "Clear" button
-            self.enter_button_grid = (3, 1, 2, 1)  # Position for the "Enter" button
-            self.help_button_grid = (7, 2, 1, 1)   # Position for the "Help" button
+            self.clear_button_grid = (3, 0, 2, 'w')  # Position for the "Clear" button
+            self.enter_button_grid = (3, 1, 2, 'e')  # Position for the "Enter" button
+            self.help_button_grid = (7, 2, 1, '')   # Position for the "Help" button
 
         elif layout == 'wide':
+            self.geometry("590x360")
+
             # Wide layout (buttons rearranged for a wider view)
             self.buttons = [
-                ('7', 3, 0, 'lightblue'), ('8', 3, 1, 'lightblue'),
-                ('9', 3, 2, 'lightblue'), ('/', 3, 3, 'lightgreen'),
-                ('\u03c0', 3, 4, 'lightgreen'),
-                ('4', 4, 0, 'lightblue'), ('5', 4, 1, 'lightblue'),
-                ('6', 4, 2, 'lightblue'), ('\u00d7', 4, 3, 'lightgreen'),
-                ('%', 4, 4, 'lightgreen'),
-                ('1', 5, 0, 'lightblue'), ('2', 5, 1, 'lightblue'),
-                ('3', 5, 2, 'lightblue'), ('-', 5, 3, 'lightgreen'),
-                ('\u00f7', 5, 4, 'lightgreen'),
-                ('0', 6, 0, 'lightblue'), ('.', 6, 1, 'lightblue'),
-                ('+', 6, 3, 'lightgreen'), ('^', 6, 4, 'lightgreen'),
-                ('\u221a', 7, 0, 'lightgreen'), ('sci', 7, 1, '#ffa'),
-                ('n√', 7, 2, 'lightgreen')
+                ('7', 4, 2, self.colors['num']), ('8', 4, 3, self.colors['num']),
+                ('9', 4, 4, self.colors['num']), ('/', 7, 1, self.colors['op']),
+                ('\u03c0', 6, 5, self.colors['op']),
+                ('4', 5, 2, self.colors['num']), ('5', 5, 3, self.colors['num']),
+                ('6', 5, 4, self.colors['num']), ('\u00d7', 6, 1, self.colors['op']),
+                ('%', 5, 0, self.colors['op']),
+                ('1', 6, 2, self.colors['num']), ('2', 6, 3, self.colors['num']),
+                ('3', 6, 4, self.colors['num']), ('-', 5, 1, self.colors['op']),
+                ('\u00f7', 7, 0, self.colors['op']),
+                ('0', 7, 3, self.colors['num']), ('.', 7, 4, self.colors['num']),
+                ('+', 4, 1, self.colors['op']), ('^', 6, 0, self.colors['op']),
+                ('\u221a', 4, 6, self.colors['op']), #('sci', 7, 1, '#ffa'),
+                ('n√', 4, 7, self.colors['op'])
             ]
 
             # In wide layout, the Clear, Enter, and Help buttons are repositioned
-            self.clear_button_grid = (3, 0, 1, 1)  # Position for the "Clear" button
-            self.enter_button_grid = (3, 1, 2, 1)  # Position for the "Enter" button
-            self.help_button_grid = (3, 2, 1, 1)   # Position for the "Help" button
+            self.clear_button_grid = (3, 1, 2, '')  # Position for the "Clear" button
+            self.clear_button.config(width=10)
+            self.enter_button_grid = (3, 3, 2, '')  # Position for the "Enter" button
+            self.enter_button.config(width=10)
+            self.help_button_grid = (3, 0, 1, '')   # Position for the "Help" button
 
             # New buttons in the wide layout (just an example of adding buttons)
             self.additional_buttons = [
-                ('sin', 4, 5, 'lightgreen'),
-                ('cos', 5, 5, 'lightgreen')
+                ('Rand', 3, 5, self.colors['op']),
+                ('=', 3, 6, self.colors['op']),
+                ('!', 3, 7, self.colors['op']),
+                ('1/x', 3, 8, self.colors['op']),
+                ('\u03c6', 4, 5, self.colors['op']),  # phi
+                # ('\u221a', 4, 6, self.colors['op']),  # root
+                ('n\u221a', 4, 7, self.colors['op']),  # nth root
+                ('2^x', 4, 8, self.colors['op']),  # TODO: implement
+                ('e', 5, 5, self.colors['op']),
+                ('ln', 5, 6, self.colors['op']),
+                ('log', 5, 7, self.colors['op']),
+                ('lg2', 5, 8, self.colors['op']),
+                ('sin', 6, 6, self.colors['op']),
+                ('cos', 6, 7, self.colors['op']),
+                ('tan', 6, 8, self.colors['op']),
+                ('\u03c4', 7, 5, self.colors['op']),  # tau
+                ('asin', 7, 6, self.colors['op']),
+                ('acos', 7, 7, self.colors['op']),
+                ('atan', 7, 8, self.colors['op']),
+                ('\u2295', 4, 0, self.colors['op']),
+                ('E', 7, 2, self.colors['op']),
             ]
 
         else:
@@ -229,9 +261,9 @@ class RPNCalculator(tk.Tk):
 
         # Reposition Clear, Enter, and Help buttons
         self.clear_button.grid(row=self.clear_button_grid[0], column=self.clear_button_grid[1],
-                               columnspan=self.clear_button_grid[2], pady=5, sticky="w")
+                               columnspan=self.clear_button_grid[2], pady=5, sticky=self.clear_button_grid[3])
         self.enter_button.grid(row=self.enter_button_grid[0], column=self.enter_button_grid[1],
-                               columnspan=self.enter_button_grid[2], pady=5, sticky="e")
+                               columnspan=self.enter_button_grid[2], pady=5, sticky=self.enter_button_grid[3])
         self.help_button.grid(row=self.help_button_grid[0], column=self.help_button_grid[1],
                               pady=5)
     def clear_button_objs(self):
@@ -466,7 +498,7 @@ class RPNCalculator(tk.Tk):
             if "." not in current_text:
                 value = int(current_text)
             else:
-                float(current_text)
+                value = float(current_text)
             self.stack.append(value)
             # Clear the entry field after adding to stack
             self.entry.delete(0, tk.END)

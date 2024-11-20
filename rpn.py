@@ -161,9 +161,11 @@ class RPNCalculator(tk.Tk):
             self.clear_button_grid = (3, 0, 2, 'w')  # Position for the "Clear" button
             self.enter_button_grid = (3, 1, 2, 'e')  # Position for the "Enter" button
             self.help_button_grid = (7, 2, 1, '')   # Position for the "Help" button
+            self.stack_label_grid = (1, 0, 5, '')
+            self.history_label_grid = (2, 0, 5, '')
 
         elif layout == 'wide':
-            self.geometry("590x360")
+            self.geometry("590x330")
 
             # Wide layout (buttons rearranged for a wider view)
             self.buttons = [
@@ -188,6 +190,10 @@ class RPNCalculator(tk.Tk):
             self.enter_button_grid = (3, 3, 2, '')  # Position for the "Enter" button
             self.enter_button.config(width=10)
             self.help_button_grid = (3, 0, 1, '')   # Position for the "Help" button
+            self.stack_label_grid = (0, 5, 4, '')
+            self.stack_label.config(width=24)
+            self.history_label_grid = (2, 0, 9, 'e')
+            self.history_label.config(width=40)
 
             # New buttons in the wide layout (just an example of adding buttons)
             self.additional_buttons = [
@@ -249,6 +255,7 @@ class RPNCalculator(tk.Tk):
 
         # Change font on the pi button
         self.button_objs['π'].config(font=("Symbol", 14))
+
         # Create the additional buttons for the 'wide' layout
         if layout == 'wide':
             for (text, row, col, color) in self.additional_buttons:
@@ -266,6 +273,12 @@ class RPNCalculator(tk.Tk):
                                columnspan=self.enter_button_grid[2], pady=5, sticky=self.enter_button_grid[3])
         self.help_button.grid(row=self.help_button_grid[0], column=self.help_button_grid[1],
                               pady=5)
+        self.stack_label.grid(row=self.stack_label_grid[0], column=self.stack_label_grid[1],
+                               columnspan=self.stack_label_grid[2], pady=5, sticky=self.history_label_grid[3])
+        self.history_label.grid(row=self.history_label_grid[0], column=self.history_label_grid[1],
+                               columnspan=self.history_label_grid[2], pady=5, sticky=self.history_label_grid[3])
+
+
     def clear_button_objs(self):
         """Clear any previous buttons from the grid."""
         for button in self.button_objs.values():
@@ -372,7 +385,12 @@ class RPNCalculator(tk.Tk):
         elif operator == 'atan':
             return math.atan(operand)
         elif operator == '!':
-            return math.factorial(operand)
+            try:
+                return math.factorial(operand)
+            except ValueError:
+                messagebox.showerror("Error",
+                                     f"Cant run {operator} on {operand}.")
+
         elif operator == '=':  # Rounds last operand to an int
             return int(operand)
         # elif operator == 'x^2':  # Depricated

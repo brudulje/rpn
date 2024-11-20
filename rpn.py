@@ -124,23 +124,86 @@ class RPNCalculator(tk.Tk):
                                      width=4, height=1, bg='#6b6',#bg='#5a5',
                                      command=self.activate_help)
         self.help_button.grid(row=7, column=2, pady=5)
+###
+        # Initially, set layout to 'small'
+        self.layout = 'small'  # Set the layout to 'small' initially (you can change it to 'wide')
+        self.create_button_layout(self.layout)
 
-        # Define button layout and colors
-        self.buttons = [
-            ('\u221a', 3, 3, 'lightgreen'),
-            ('sci', 3, 4, '#ffa'),
-            ('7', 4, 0, 'lightblue'), ('8', 4, 1, 'lightblue'),
-            ('9', 4, 2, 'lightblue'), ('/', 4, 3, 'lightgreen'),
-            ('\u03c0', 4, 4, 'lightgreen'),
-            ('4', 5, 0, 'lightblue'), ('5', 5, 1, 'lightblue'),
-            ('6', 5, 2, 'lightblue'), ('\u00d7', 5, 3, 'lightgreen'),
-            ('%', 5, 4, 'lightgreen'),
-            ('1', 6, 0, 'lightblue'), ('2', 6, 1, 'lightblue'),
-            ('3', 6, 2, 'lightblue'), ('-', 6, 3, 'lightgreen'),
-            ('\u00f7', 6, 4, 'lightgreen'),
-            ('0', 7, 0, 'lightblue'), ('.', 7, 1, 'lightblue'),
-            ('+', 7, 3, 'lightgreen'), ('^', 7, 4, 'lightgreen')
+    def create_button_layout(self, layout):
+        """Set up button layout based on the selected layout ('small' or 'wide')."""
+        if layout == 'small':
+            # Small layout (as defined originally)
+            self.buttons = [
+                ('\u221a', 3, 3, 'lightgreen'),
+                ('sci', 3, 4, '#ffa'),
+                ('7', 4, 0, 'lightblue'), ('8', 4, 1, 'lightblue'),
+                ('9', 4, 2, 'lightblue'), ('/', 4, 3, 'lightgreen'),
+                ('\u03c0', 4, 4, 'lightgreen'),
+                ('4', 5, 0, 'lightblue'), ('5', 5, 1, 'lightblue'),
+                ('6', 5, 2, 'lightblue'), ('\u00d7', 5, 3, 'lightgreen'),
+                ('%', 5, 4, 'lightgreen'),
+                ('1', 6, 0, 'lightblue'), ('2', 6, 1, 'lightblue'),
+                ('3', 6, 2, 'lightblue'), ('-', 6, 3, 'lightgreen'),
+                ('\u00f7', 6, 4, 'lightgreen'),
+                ('0', 7, 0, 'lightblue'), ('.', 7, 1, 'lightblue'),
+                ('+', 7, 3, 'lightgreen'), ('^', 7, 4, 'lightgreen')
             ]
+
+            self.clear_button_grid = (3, 0, 2, 1)  # Position for the "Clear" button
+            self.enter_button_grid = (3, 1, 2, 1)  # Position for the "Enter" button
+            self.help_button_grid = (7, 2, 1, 1)   # Position for the "Help" button
+
+        elif layout == 'wide':
+            # Wide layout (buttons rearranged for a wider view)
+            self.buttons = [
+                ('7', 3, 0, 'lightblue'), ('8', 3, 1, 'lightblue'),
+                ('9', 3, 2, 'lightblue'), ('/', 3, 3, 'lightgreen'),
+                ('\u03c0', 3, 4, 'lightgreen'),
+                ('4', 4, 0, 'lightblue'), ('5', 4, 1, 'lightblue'),
+                ('6', 4, 2, 'lightblue'), ('\u00d7', 4, 3, 'lightgreen'),
+                ('%', 4, 4, 'lightgreen'),
+                ('1', 5, 0, 'lightblue'), ('2', 5, 1, 'lightblue'),
+                ('3', 5, 2, 'lightblue'), ('-', 5, 3, 'lightgreen'),
+                ('\u00f7', 5, 4, 'lightgreen'),
+                ('0', 6, 0, 'lightblue'), ('.', 6, 1, 'lightblue'),
+                ('+', 6, 3, 'lightgreen'), ('^', 6, 4, 'lightgreen'),
+                ('\u221a', 7, 0, 'lightgreen'), ('sci', 7, 1, '#ffa'),
+                ('n√', 7, 2, 'lightgreen')
+            ]
+
+            # In wide layout, the Clear, Enter, and Help buttons are repositioned
+            self.clear_button_grid = (3, 0, 1, 1)  # Position for the "Clear" button
+            self.enter_button_grid = (3, 1, 2, 1)  # Position for the "Enter" button
+            self.help_button_grid = (3, 2, 1, 1)   # Position for the "Help" button
+
+            # New buttons in the wide layout (just an example of adding buttons)
+            self.additional_buttons = [
+                ('sin', 4, 5, 'lightgreen'),
+                ('cos', 5, 5, 'lightgreen')
+            ]
+
+        else:
+            print("Invalid layout")
+            return
+###
+        # # Define button layout and colors
+        # self.buttons = [
+        #     ('\u221a', 3, 3, 'lightgreen'),
+        #     ('sci', 3, 4, '#ffa'),
+        #     ('7', 4, 0, 'lightblue'), ('8', 4, 1, 'lightblue'),
+        #     ('9', 4, 2, 'lightblue'), ('/', 4, 3, 'lightgreen'),
+        #     ('\u03c0', 4, 4, 'lightgreen'),
+        #     ('4', 5, 0, 'lightblue'), ('5', 5, 1, 'lightblue'),
+        #     ('6', 5, 2, 'lightblue'), ('\u00d7', 5, 3, 'lightgreen'),
+        #     ('%', 5, 4, 'lightgreen'),
+        #     ('1', 6, 0, 'lightblue'), ('2', 6, 1, 'lightblue'),
+        #     ('3', 6, 2, 'lightblue'), ('-', 6, 3, 'lightgreen'),
+        #     ('\u00f7', 6, 4, 'lightgreen'),
+        #     ('0', 7, 0, 'lightblue'), ('.', 7, 1, 'lightblue'),
+        #     ('+', 7, 3, 'lightgreen'), ('^', 7, 4, 'lightgreen')
+        #     ]
+       # Clear any previous buttons and re-create the new layout
+        # self.clear_button_objs()
 
         # Create the buttons for the number pad and operators with colors
         self.button_objs = {}
@@ -154,6 +217,31 @@ class RPNCalculator(tk.Tk):
 
         # Change font on the pi button
         self.button_objs['π'].config(font=("Symbol", 14))
+        # Create the additional buttons for the 'wide' layout
+        if layout == 'wide':
+            for (text, row, col, color) in self.additional_buttons:
+                button = tk.Button(self, text=text,
+                                   font=("Lucida Sans Unicode", 14),
+                                   width=4, height=1, bg=color,
+                                   command=self.create_button_handler(text))
+                button.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+                self.button_objs[text] = button
+
+        # Reposition Clear, Enter, and Help buttons
+        self.clear_button.grid(row=self.clear_button_grid[0], column=self.clear_button_grid[1],
+                               columnspan=self.clear_button_grid[2], pady=5, sticky="w")
+        self.enter_button.grid(row=self.enter_button_grid[0], column=self.enter_button_grid[1],
+                               columnspan=self.enter_button_grid[2], pady=5, sticky="e")
+        self.help_button.grid(row=self.help_button_grid[0], column=self.help_button_grid[1],
+                              pady=5)
+    def clear_button_objs(self):
+        """Clear any previous buttons from the grid."""
+        for button in self.button_objs.values():
+            button.grid_forget()
+
+        self.button_objs.clear()
+
+
 
     def create_button_handler(self, text):
         """Returns a function that calls
@@ -261,7 +349,7 @@ class RPNCalculator(tk.Tk):
         else:
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
-                                     f"Unknown operator {operator}.")
+                                 f"Unknown operator {operator}.")
 
     def evaluate_zero(self, text):
         # {'\u03c0', '\u03c4', 'e'}

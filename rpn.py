@@ -31,15 +31,19 @@ class RPNCalculator(tk.Tk):
         # Regex magic to allow operators to be entered together with the
         # last number before the operator
         self.sorted_operators = sorted(self.operators, key=len, reverse=True)
-        # Create a regex pattern to match the longest operator at the end of the string
+        # Create a regex pattern to match the longest operator
+        # at the end of the string
         pattern = '|'.join(re.escape(op) for op in self.sorted_operators)
-        # Match the operator only at the end and ensure there is something before it
+        # Match the operator only at the end
+        # and ensure there is something before it
         self.pattern = f"^(.*?)(?={pattern})({pattern})$"
 
         # Dictionary of help texts for each button
         self.help_texts = {
-            '.': "Decimal point. Separates the whole number from the fraction.",
-            '0': "0; Zero, the first digit and the basis of positional notation.",
+            '.': "Decimal point. Separates the whole number from the \
+                fraction.",
+            '0': "0; Zero, the first digit and the basis of positional \
+                notation.",
             '1': "1; First and foremost. Number one.",
             '2': "2; Never first, but close.",
             '3': "3; First odd prime.",
@@ -49,38 +53,53 @@ class RPNCalculator(tk.Tk):
             '7': "7; Seven. An excellent choise.",
             '8': "8; Eight. The first digit in alphabetical order.",
             '9': "9; Nine. First odd square.",
-            'π': "Pi is the circumference of a circle divided by its diameter.",
-            '\u03c4': "Tau is the circumference of a circle divided by its radius.",
-            'e': "Euler's number (e) is a mathematical constant approximately equal to 2.71828.",
+            'π': "Pi is the circumference of a circle divided by its \
+                diameter.",
+            '\u03c4': "Tau is the circumference of a circle divided by its \
+                radius.",
+            'e': "Euler's number (e) is a mathematical constant approximately \
+                equal to 2.71828.",
             '\u03c6': "Phi is the golden ratio. 1 / phi = phi - 1.",
             '+': "Addition operator. Adds two numbers.",
-            '-': "Subtraction operator. Subtracts the second number from the first.",
+            '-': "Subtraction operator. Subtracts the second number from the \
+                first.",
             '\u00d7': "Multiplication operator. Multiplies two numbers.",
             '/': "Division operator. Divides the first number by the second.",
-            '^': "Exponentiation operator. Raises the first number to the power of the second.",
+            '^': "Exponentiation operator. Raises the first number to the \
+                power of the second.",
             '÷': "Integer division. Returns the integer part after division.",
-            '%': "Modulus operator. Returns the remainder of the division of two numbers.",
+            '%': "Modulus operator. Returns the remainder of the division of \
+                two numbers.",
             '√': "Square root operator. Returns the square root of a number.",
-            'sin': "Sine function. Returns the sine of an angle (in radians).",
-            'cos': "Cosine function. Returns the cosine of an angle (in radians).",
-            'tan': "Tangent function. Returns the tangent of an angle (in radians).",
+            'sin': "Sine function. Returns the sine of an angle.",
+            'cos': "Cosine function. Returns the cosine of an angle.",
+            'tan': "Tangent function. Returns the tangent of an angle.",
             'asin': "Inverse sine function. Returns the inverse of sin.",
             'acos': "Inverse cosine function. Returns the inverse of cos.",
             'atan': "Inverse tangent function. Returns the inverse of tan",
-            'ln': "Natural logarithm function. Returns the natural logarithm of a number.",
-            'lg2': "Base-2 logarithm function. Returns the logarithm of a number with base 2.",
-            'log': "Base-10 logarithm function. Returns the logarithm of a number with base 10.",
-            '1/x': "Reciprocal operator. Returns the reciprocal (1 divided by the number).",
+            'ln': "Natural logarithm function. Returns the natural logarithm \
+                of a number.",
+            'lg2': "Base-2 logarithm function. Returns the logarithm of a \
+                number with base 2.",
+            'log': "Base-10 logarithm function. Returns the logarithm of a \
+                number with base 10.",
+            '1/x': "Reciprocal operator. Returns the reciprocal (1 divided by \
+                the number).",
             '2^x': "Raise 2 to the power of x.",
             '!': "Factorial function. Returns the factorial of a number.",
-            '=': "'=' on an RPN? Yeah, this rounds the number to the nearest integer.",
+            '=': "'=' on an RPN? Yeah, this rounds the number to the nearest \
+                integer.",
             'Rand': "Generates a random number between 0 and 1.",
-            'n√': "Nth root operator. Returns the nth root of the first number.",
-            '\u2295': "Circled Plus operator. Returns the Euclidean norm (distance) between two numbers.",
+            'n√': "Nth root operator. Returns the nth root of the first \
+                number.",
+            '\u2295': "Circled Plus operator. Returns the Euclidean norm \
+                (distance) between two numbers.",
             'E': "Scientific notation. x, y, E is x * 10^y.",
             'sci': "Toggle various scientific functions.",
-            '?' : "This is the help button. Click this and another button to get help on that other button.",
-            # 'Clear': "Clears the input. If no input, clears the stack. If no stack, clears history.",
+            '?': "This is the help button. Click this and another button to \
+                get help on that other button.",
+            # 'Clear': "Clears the input. If no input, clears the stack. \
+            #     If no stack, clears history.",
             # 'Enter': "Transfers your input number to the stack."
         }
 
@@ -94,8 +113,8 @@ class RPNCalculator(tk.Tk):
             'sci': '#ffa',
             'Clear': 'lightgray',
             'Enter': 'darkgray',
-            '?': '#6b6'
-            }
+            '?': '#6b6',
+        }
 
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
@@ -117,52 +136,64 @@ class RPNCalculator(tk.Tk):
         # "Clear" button to clear the input
         self.clear_button = tk.Button(self, text="Clear",
                                       font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1, bg=self.colors["Clear"],
+                                      width=6, height=1,
+                                      bg=self.colors["Clear"],
                                       command=self.clear)
-        self.clear_button.grid(row=3, column=0, columnspan=2, pady=5, sticky="w")
+        self.clear_button.grid(row=3, column=0, columnspan=2,
+                               pady=5, sticky="w")
 
         # "Enter" button to add current value to the stack
         self.enter_button = tk.Button(self, text="Enter",
                                       font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1, bg=self.colors["Enter"],
+                                      width=6, height=1,
+                                      bg=self.colors["Enter"],
                                       command=self.process_input)
-        self.enter_button.grid(row=3, column=1, columnspan=2, pady=5, sticky="e")
+        self.enter_button.grid(row=3, column=1, columnspan=2,
+                               pady=5, sticky="e")
 
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
-                                     width=4, height=1, bg=self.colors["?"],#'#6b6',#bg='#5a5',
+                                     width=4, height=1, bg=self.colors["?"],
                                      command=self.activate_help)
         self.help_button.grid(row=7, column=2, pady=5)
-###
-        # Initially, set layout to 'small'
-        self.layout = 'wide2'  # Set the layout to 'small' initially ('wide')
+
+        # Initially, set layout
+        self.layout = 'wide2'  # 'small', 'wide1', 'wide2'
         self.create_button_layout(self.layout)
 
-
     def create_button_layout(self, layout):
-        """Set up button layout based on the selected layout ('small' or 'wide')."""
+        """Set up button layout based on the selected layout
+        ('small' or 'wide')."""
         if layout == 'small':
             # Small layout (as defined originally)
             self.buttons = [
                 ('\u221a', 3, 3, self.colors['op']),
                 ('sci', 3, 4, '#ffa'),
-                ('7', 4, 0, self.colors['num']), ('8', 4, 1, self.colors['num']),
-                ('9', 4, 2, self.colors['num']), ('/', 4, 3, self.colors['op']),
+                ('7', 4, 0, self.colors['num']),
+                ('8', 4, 1, self.colors['num']),
+                ('9', 4, 2, self.colors['num']),
+                ('/', 4, 3, self.colors['op']),
                 ('\u03c0', 4, 4, self.colors['op']),
-                ('4', 5, 0, self.colors['num']), ('5', 5, 1, self.colors['num']),
-                ('6', 5, 2, self.colors['num']), ('\u00d7', 5, 3, self.colors['op']),
+                ('4', 5, 0, self.colors['num']),
+                ('5', 5, 1, self.colors['num']),
+                ('6', 5, 2, self.colors['num']),
+                ('\u00d7', 5, 3, self.colors['op']),
                 ('%', 5, 4, self.colors['op']),
-                ('1', 6, 0, self.colors['num']), ('2', 6, 1, self.colors['num']),
-                ('3', 6, 2, self.colors['num']), ('-', 6, 3, self.colors['op']),
+                ('1', 6, 0, self.colors['num']),
+                ('2', 6, 1, self.colors['num']),
+                ('3', 6, 2, self.colors['num']),
+                ('-', 6, 3, self.colors['op']),
                 ('\u00f7', 6, 4, self.colors['op']),
-                ('0', 7, 0, self.colors['num']), ('.', 7, 1, self.colors['num']),
-                ('+', 7, 3, self.colors['op']), ('^', 7, 4, self.colors['op'])
+                ('0', 7, 0, self.colors['num']),
+                ('.', 7, 1, self.colors['num']),
+                ('+', 7, 3, self.colors['op']),
+                ('^', 7, 4, self.colors['op'])
             ]
 
-            self.clear_button_grid = (3, 0, 2, 'w')  # Position for the "Clear" button
-            self.enter_button_grid = (3, 1, 2, 'e')  # Position for the "Enter" button
-            self.help_button_grid = (7, 2, 1, '')   # Position for the "Help" button
+            self.clear_button_grid = (3, 0, 2, 'w')
+            self.enter_button_grid = (3, 1, 2, 'e')
+            self.help_button_grid = (7, 2, 1, '')
             self.entry_grid = (0, 0, 5, '')
             self.stack_label_grid = (1, 0, 5, '')
             self.history_label_grid = (2, 0, 5, '')
@@ -172,27 +203,34 @@ class RPNCalculator(tk.Tk):
 
             # Wide layout (buttons rearranged for a wider view)
             self.buttons = [
-                ('7', 4, 2, self.colors['num']), ('8', 4, 3, self.colors['num']),
-                ('9', 4, 4, self.colors['num']), ('/', 7, 1, self.colors['op']),
+                ('7', 4, 2, self.colors['num']),
+                ('8', 4, 3, self.colors['num']),
+                ('9', 4, 4, self.colors['num']),
+                ('/', 7, 1, self.colors['op']),
                 ('\u03c0', 6, 5, self.colors['op']),
-                ('4', 5, 2, self.colors['num']), ('5', 5, 3, self.colors['num']),
-                ('6', 5, 4, self.colors['num']), ('\u00d7', 6, 1, self.colors['op']),
+                ('4', 5, 2, self.colors['num']),
+                ('5', 5, 3, self.colors['num']),
+                ('6', 5, 4, self.colors['num']),
+                ('\u00d7', 6, 1, self.colors['op']),
                 ('%', 5, 0, self.colors['op']),
-                ('1', 6, 2, self.colors['num']), ('2', 6, 3, self.colors['num']),
-                ('3', 6, 4, self.colors['num']), ('-', 5, 1, self.colors['op']),
+                ('1', 6, 2, self.colors['num']),
+                ('2', 6, 3, self.colors['num']),
+                ('3', 6, 4, self.colors['num']),
+                ('-', 5, 1, self.colors['op']),
                 ('\u00f7', 7, 0, self.colors['op']),
-                ('0', 7, 3, self.colors['num']), ('.', 7, 4, self.colors['num']),
-                ('+', 4, 1, self.colors['op']), ('^', 6, 0, self.colors['op']),
-                ('\u221a', 4, 6, self.colors['op']), #('sci', 7, 1, '#ffa'),
+                ('0', 7, 3, self.colors['num']),
+                ('.', 7, 4, self.colors['num']),
+                ('+', 4, 1, self.colors['op']),
+                ('^', 6, 0, self.colors['op']),
+                ('\u221a', 4, 6, self.colors['op']),  # ('sci', 7, 1, '#ffa'),
                 ('n√', 4, 7, self.colors['op'])
             ]
 
-            # In wide layout, the Clear, Enter, and Help buttons are repositioned
-            self.clear_button_grid = (3, 1, 2, '')  # Position for the "Clear" button
+            self.clear_button_grid = (3, 1, 2, '')
             self.clear_button.config(width=10)
-            self.enter_button_grid = (3, 3, 2, '')  # Position for the "Enter" button
+            self.enter_button_grid = (3, 3, 2, '')
             self.enter_button.config(width=10)
-            self.help_button_grid = (3, 0, 1, '')   # Position for the "Help" button
+            self.help_button_grid = (3, 0, 1, '')
             self.entry_grid = (0, 0, 3, '')
             self.entry.config(width=15)
             self.stack_label_grid = (0, 3, 6, '')
@@ -200,7 +238,7 @@ class RPNCalculator(tk.Tk):
             self.history_label_grid = (2, 0, 9, 'e')
             self.history_label.config(width=55)
 
-            # New buttons in the wide layout (just an example of adding buttons)
+            # New buttons in the wide layout
             self.additional_buttons = [
                 ('Rand', 3, 5, self.colors['op']),
                 ('=', 3, 6, self.colors['op']),
@@ -209,7 +247,7 @@ class RPNCalculator(tk.Tk):
                 ('\u03c6', 4, 5, self.colors['op']),  # phi
                 # ('\u221a', 4, 6, self.colors['op']),  # root
                 ('n\u221a', 4, 7, self.colors['op']),  # nth root
-                ('2^x', 4, 8, self.colors['op']),  # TODO: implement
+                ('2^x', 4, 8, self.colors['op']),
                 ('e', 5, 5, self.colors['op']),
                 ('ln', 5, 6, self.colors['op']),
                 ('log', 5, 7, self.colors['op']),
@@ -249,16 +287,15 @@ class RPNCalculator(tk.Tk):
                 ('.', 7, 8, self.colors['num']),
                 ('+', 4, 5, self.colors['op']),
                 ('^', 6, 4, self.colors['op']),
-                ('\u221a', 4, 1, self.colors['op']), #('sci', 7, 1, '#ffa'),
+                ('\u221a', 4, 1, self.colors['op']),  # ('sci', 7, 1, '#ffa'),
                 ('n√', 4, 2, self.colors['op'])
             ]
 
-            # In wide layout, the Clear, Enter, and Help buttons are repositioned
-            self.clear_button_grid = (3, 5, 2, '')  # Position for the "Clear" button
+            self.clear_button_grid = (3, 5, 2, '')
             self.clear_button.config(width=10)
-            self.enter_button_grid = (3, 7, 2, '')  # Position for the "Enter" button
+            self.enter_button_grid = (3, 7, 2, '')
             self.enter_button.config(width=10)
-            self.help_button_grid = (3, 4, 1, '')   # Position for the "Help" button
+            self.help_button_grid = (3, 4, 1, '')
             self.entry_grid = (0, 0, 3, '')
             self.entry.config(width=15)
             self.stack_label_grid = (0, 3, 6, '')
@@ -266,7 +303,7 @@ class RPNCalculator(tk.Tk):
             self.history_label_grid = (2, 0, 9, 'e')
             self.history_label.config(width=55)
 
-            # New buttons in the wide layout (just an example of adding buttons)
+            # New buttons in the wide layout
             self.additional_buttons = [
                 ('Rand', 3, 0, self.colors['op']),
                 ('=', 3, 1, self.colors['op']),
@@ -274,7 +311,7 @@ class RPNCalculator(tk.Tk):
                 ('1/x', 3, 3, self.colors['op']),
                 ('\u03c6', 4, 0, self.colors['op']),  # phi
                 ('n\u221a', 4, 2, self.colors['op']),  # nth root
-                ('2^x', 4, 3, self.colors['op']),  # TODO: implement
+                ('2^x', 4, 3, self.colors['op']),
                 ('e', 5, 0, self.colors['op']),
                 ('ln', 5, 1, self.colors['op']),
                 ('log', 5, 2, self.colors['op']),
@@ -292,26 +329,7 @@ class RPNCalculator(tk.Tk):
         else:
             print("Invalid layout")
             return
-###
-        # # Define button layout and colors
-        # self.buttons = [
-        #     ('\u221a', 3, 3, 'lightgreen'),
-        #     ('sci', 3, 4, '#ffa'),
-        #     ('7', 4, 0, 'lightblue'), ('8', 4, 1, 'lightblue'),
-        #     ('9', 4, 2, 'lightblue'), ('/', 4, 3, 'lightgreen'),
-        #     ('\u03c0', 4, 4, 'lightgreen'),
-        #     ('4', 5, 0, 'lightblue'), ('5', 5, 1, 'lightblue'),
-        #     ('6', 5, 2, 'lightblue'), ('\u00d7', 5, 3, 'lightgreen'),
-        #     ('%', 5, 4, 'lightgreen'),
-        #     ('1', 6, 0, 'lightblue'), ('2', 6, 1, 'lightblue'),
-        #     ('3', 6, 2, 'lightblue'), ('-', 6, 3, 'lightgreen'),
-        #     ('\u00f7', 6, 4, 'lightgreen'),
-        #     ('0', 7, 0, 'lightblue'), ('.', 7, 1, 'lightblue'),
-        #     ('+', 7, 3, 'lightgreen'), ('^', 7, 4, 'lightgreen')
-        #     ]
-       # Clear any previous buttons and re-create the new layout
-        # self.clear_button_objs()
-
+#
         # Create the buttons for the number pad and operators with colors
         self.button_objs = {}
         for (text, row, col, color) in self.buttons:
@@ -336,19 +354,28 @@ class RPNCalculator(tk.Tk):
                 self.button_objs[text] = button
 
         # Reposition Clear, Enter, and Help buttons
-        self.clear_button.grid(row=self.clear_button_grid[0], column=self.clear_button_grid[1],
-                               columnspan=self.clear_button_grid[2], pady=5, sticky=self.clear_button_grid[3])
-        self.enter_button.grid(row=self.enter_button_grid[0], column=self.enter_button_grid[1],
-                               columnspan=self.enter_button_grid[2], pady=5, sticky=self.enter_button_grid[3])
-        self.help_button.grid(row=self.help_button_grid[0], column=self.help_button_grid[1],
+        self.clear_button.grid(row=self.clear_button_grid[0],
+                               column=self.clear_button_grid[1],
+                               columnspan=self.clear_button_grid[2],
+                               pady=5, sticky=self.clear_button_grid[3])
+        self.enter_button.grid(row=self.enter_button_grid[0],
+                               column=self.enter_button_grid[1],
+                               columnspan=self.enter_button_grid[2],
+                               pady=5, sticky=self.enter_button_grid[3])
+        self.help_button.grid(row=self.help_button_grid[0],
+                              column=self.help_button_grid[1],
                               pady=5)
         self.entry.grid(row=self.entry_grid[0], column=self.entry_grid[1],
-                               columnspan=self.entry_grid[2], pady=5, sticky=self.entry_grid[3])
-        self.stack_label.grid(row=self.stack_label_grid[0], column=self.stack_label_grid[1],
-                               columnspan=self.stack_label_grid[2], pady=5, sticky=self.history_label_grid[3])
-        self.history_label.grid(row=self.history_label_grid[0], column=self.history_label_grid[1],
-                               columnspan=self.history_label_grid[2], pady=5, sticky=self.history_label_grid[3])
-
+                        columnspan=self.entry_grid[2], pady=5,
+                        sticky=self.entry_grid[3])
+        self.stack_label.grid(row=self.stack_label_grid[0],
+                              column=self.stack_label_grid[1],
+                              columnspan=self.stack_label_grid[2], pady=5,
+                              sticky=self.history_label_grid[3])
+        self.history_label.grid(row=self.history_label_grid[0],
+                                column=self.history_label_grid[1],
+                                columnspan=self.history_label_grid[2], pady=5,
+                                sticky=self.history_label_grid[3])
 
     def clear_button_objs(self):
         """Clear any previous buttons from the grid."""
@@ -356,8 +383,6 @@ class RPNCalculator(tk.Tk):
             button.grid_forget()
 
         self.button_objs.clear()
-
-
 
     def create_button_handler(self, text):
         """Returns a function that calls
@@ -372,15 +397,11 @@ class RPNCalculator(tk.Tk):
             operand1 = expression[0]
             operand2 = expression[1]
             operator = expression[2]  # Operator
-        # except (ValueError, IndexError):
-        #     messagebox.showerror("Error", f"Too few arguments to {expression}.")
-
-        # try:
             _ = float(operand1)
             _ = float(operand2)
         except (ValueError, TypeError, IndexError):
-            # messagebox.showerror("Error", f"{operand1} and {operand2} are not numbers.")
-            messagebox.showerror("Error", f"Can't figure out how to handle {expression}.")
+            messagebox.showerror("Error",
+                                 f"Don't know what to do with {expression}.")
             return None
         # Perform the operation based on the operator
         if operator == '+':
@@ -414,7 +435,6 @@ class RPNCalculator(tk.Tk):
         elif operator == 'E':
             return operand1 * 10 ** operand2
         else:
-            # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error", f"Unknown 2operator {operator}.")
 
         return result
@@ -426,12 +446,12 @@ class RPNCalculator(tk.Tk):
             operand = expression[0]
             operator = expression[1]
         except IndexError:
-            messagebox.showerror("Error", f"Too few arguments to {expression}.")
+            messagebox.showerror("Error",
+                                 f"Too few arguments to {expression}.")
             return None
 
         if operator == '\u221a':
             if operand < 0:
-                # raise ValueError("Root of negative numbers not supported.")
                 messagebox.showerror("Error",
                                      "Root of negative numbers not supported.")
 
@@ -669,13 +689,14 @@ class RPNCalculator(tk.Tk):
             self.help_mode = True
             # set color '#0a6'
             self.help_button.config(bg='#080')  # 'lightgreen #9e9
-            self.entry.delete(0, tk.END)  # Clear the entry field to indicate help mode
-            self.entry.insert(tk.END, "Click for help.")  # Display help mode message
+            self.entry.delete(0, tk.END)
+            self.entry.insert(tk.END, "Click for help.")  # Display help mode
 
     def deactivate_help(self):
         self.help_button.config(bg='#6b6')
         self.entry.delete(0, tk.END)
         self.help_mode = False
+
 
 # Create the GUI application
 if __name__ == "__main__":

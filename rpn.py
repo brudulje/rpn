@@ -30,8 +30,13 @@ class RPNCalculator(tk.Tk):
 
         # Regex magic to allow operators to be entered together with the
         # last number before the operator
-        self.operator_pattern = r'^[+-]?\d*\.?\d+([' + '|'\
-            .join(map(re.escape, self.operators)) + r'])'
+        # self.operator_pattern = r'^[+-]?\d*\.?\d+([' + '|'\
+        #     .join(map(re.escape, self.operators)) + r'])'
+        self.sorted_operators = sorted(self.operators, key=len, reverse=True)
+        # Create a regex pattern to match the longest operator at the end of the string
+        pattern = '|'.join(re.escape(op) for op in self.sorted_operators)
+        # Match the operator only at the end and ensure there is something before it
+        self.pattern = f"^(.*?)(?={pattern})({pattern})$"
 
         # Dictionary of help texts for each button
         self.help_texts = {
@@ -234,8 +239,7 @@ class RPNCalculator(tk.Tk):
         elif operator == 'log':
             return math.log10(operand)
         elif operator == '1/x':
-            print(operator, operand)
-            # TODO: FIx operator. Broken by regex, also nth root
+            # print(operator, operand)
             return 1 / operand
         elif operator == 'asin':
             return math.asin(operand)
@@ -321,7 +325,8 @@ class RPNCalculator(tk.Tk):
         # print(button_text)
         if self.help_mode:
             # Show help text for the clicked button
-            help_text = self.help_texts.get(button_text, "No help available for this button.")
+            help_text = self.help_texts.get(button_text,
+                                            "Sorry, can't help you there.")
             messagebox.showinfo("Help", help_text)
             self.deactivate_help()
         elif button_text == 'sci':
@@ -380,31 +385,16 @@ class RPNCalculator(tk.Tk):
 
         if current_text:
 
-            # Check if the current_text matches the operator pattern
-            # containing number and operator in one single string
-            match = re.match(self.operator_pattern, current_text)
-
-            if match:
-                # Extract the number and operator from the matched string
-                # Everything except the operator
-                number = match.group(0)[:-len(match.group(1))]
-                operator = match.group(1)  # The operator part
-
+            match = re.search(self.pattern, current_text)
+            # Number and operator entered together.
+            if match and match.group(1) and match.group(2):
+                number = match.group(1)
                 # Add number to stack
                 self.process_number(number)
+                # operator = match.group(2)  # Send operator on to be sorted
+                current_text = match.group(2)
 
-                # Add operator to stack and evaluate
-                if operator in self.operator_2:
-                    self.process_operator(operator, 3, self.evaluate_two)
-                elif operator in self.operator_1:
-                    self.process_operator(operator, 2, self.evaluate_one)
-                elif operator in self.operator_0:
-                    result = self.evaluate_zero(operator)
-                    self.stack.append(result)
-                    # Clear the entry field after adding to stack
-                    self.entry.delete(0, tk.END)
-
-            elif current_text in self.operator_2:
+            if current_text in self.operator_2:
                 # Add operator to stack and evaluate immediately
                 self.process_operator(current_text, 3, self.evaluate_two)
             elif current_text in self.operator_1:

@@ -16,14 +16,14 @@ class RPNCalculator(tk.Tk):
         self.operator_2 = {'+', '-', '\u00d7',  # times
                            '/', '^', '\u00f7',  # int div
                            '%', 'n\u221a',  # nth root
-                           '\u2295',  # circled pluss
+                           'E', '\u2295',  # circled pluss
                            }
 
         self.operator_1 = {'\u221a',  # root
                            'sin', 'cos', 'tan',
                            'asin', 'acos', 'atan',
                            'ln', 'log', 'lg2',
-                           '1/x', '!', '='}
+                           '1/x', '!', '=', '2^x'}
         self.operator_0 = {'\u03c0', '\u03c4', '\u03c6', 'e', 'Rand'}
         # pi, tau, phi, e
         self.operators = self.operator_0 | self.operator_1 | self.operator_2
@@ -71,11 +71,13 @@ class RPNCalculator(tk.Tk):
             'lg2': "Base-2 logarithm function. Returns the logarithm of a number with base 2.",
             'log': "Base-10 logarithm function. Returns the logarithm of a number with base 10.",
             '1/x': "Reciprocal operator. Returns the reciprocal (1 divided by the number).",
+            '2^x': "Raise 2 to the power of x.",
             '!': "Factorial function. Returns the factorial of a number.",
             '=': "Rounds the number to the nearest integer.",
             'Rand': "Generates a random number between 0 and 1.",
             'n√': "Nth root operator. Returns the nth root of the first number.",
             '\u2295': "Circled Plus operator. Returns the Euclidean norm (distance) between two numbers.",
+            'E': "Scientific notation. x, y, E is x * 10^y.",
             'sci': "Toggle various scientific functions.",
             '?' : "This is the help button. Click this and another button to get help on that other button.",
             # 'Clear': "Clears the input. If no input, clears the stack. If no stack, clears history.",
@@ -161,6 +163,7 @@ class RPNCalculator(tk.Tk):
             self.clear_button_grid = (3, 0, 2, 'w')  # Position for the "Clear" button
             self.enter_button_grid = (3, 1, 2, 'e')  # Position for the "Enter" button
             self.help_button_grid = (7, 2, 1, '')   # Position for the "Help" button
+            self.entry_grid = (0, 0, 5, '')
             self.stack_label_grid = (1, 0, 5, '')
             self.history_label_grid = (2, 0, 5, '')
 
@@ -190,10 +193,12 @@ class RPNCalculator(tk.Tk):
             self.enter_button_grid = (3, 3, 2, '')  # Position for the "Enter" button
             self.enter_button.config(width=10)
             self.help_button_grid = (3, 0, 1, '')   # Position for the "Help" button
-            self.stack_label_grid = (0, 5, 4, '')
-            self.stack_label.config(width=24)
+            self.entry_grid = (0, 0, 3, '')
+            self.entry.config(width=15)
+            self.stack_label_grid = (0, 3, 6, '')
+            self.stack_label.config(width=36)
             self.history_label_grid = (2, 0, 9, 'e')
-            self.history_label.config(width=40)
+            self.history_label.config(width=55)
 
             # New buttons in the wide layout (just an example of adding buttons)
             self.additional_buttons = [
@@ -273,6 +278,8 @@ class RPNCalculator(tk.Tk):
                                columnspan=self.enter_button_grid[2], pady=5, sticky=self.enter_button_grid[3])
         self.help_button.grid(row=self.help_button_grid[0], column=self.help_button_grid[1],
                               pady=5)
+        self.entry.grid(row=self.entry_grid[0], column=self.entry_grid[1],
+                               columnspan=self.entry_grid[2], pady=5, sticky=self.entry_grid[3])
         self.stack_label.grid(row=self.stack_label_grid[0], column=self.stack_label_grid[1],
                                columnspan=self.stack_label_grid[2], pady=5, sticky=self.history_label_grid[3])
         self.history_label.grid(row=self.history_label_grid[0], column=self.history_label_grid[1],
@@ -340,6 +347,8 @@ class RPNCalculator(tk.Tk):
             result = operand1 ** (1/operand2)
         elif operator == '\u2295':  # Circled pluss
             result = math.sqrt(operand1**2 + operand2**2)
+        elif operator == 'E':
+            return operand1 * 10 ** operand2
         else:
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error", f"Unknown operator {operator}.")
@@ -395,7 +404,8 @@ class RPNCalculator(tk.Tk):
             return int(operand)
         # elif operator == 'x^2':  # Depricated
         #     return operand ** 2
-
+        elif operator == '2^x':
+            return 2 ** operand
         else:
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
@@ -500,10 +510,15 @@ class RPNCalculator(tk.Tk):
 
         if eval_function:
             result = eval_function(self.stack[-operand_count:])
-            # Remove the operands from the stack
-            self.stack = self.stack[:-operand_count]
+            # # Remove the operands from the stack
+            # self.stack = self.stack[:-operand_count]
             if result is not None:
+            # Remove the operands from the stack only if calculation is good
+                self.stack = self.stack[:-operand_count]
                 self.stack.append(result)
+            else:
+                 # Remove faild operator from stack
+                 self.stack = self.stack[:-1]
 
     def process_number(self, current_text):
         """

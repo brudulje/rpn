@@ -16,7 +16,8 @@ class RPNCalculator(tk.Tk):
         self.operator_2 = {'+', '-', '\u00d7',  # times
                            '/', '^', '\u00f7',  # int div
                            '%', 'n\u221a',  # nth root
-                           'E', '\u2295',  # circled pluss
+                           # 'E',
+                           '\u2295',  # circled pluss
                            }
 
         self.operator_1 = {'\u221a',  # root
@@ -98,6 +99,7 @@ class RPNCalculator(tk.Tk):
             'sci': "Toggle various scientific functions.",
             '?': "This is the help button. Click this and another button to \
                 get help on that other button.",
+            '(-)': "Negative symbol for entering negative numbers.",
             # 'Clear': "Clears the input. If no input, clears the stack. \
             #     If no stack, clears history.",
             # 'Enter': "Transfers your input number to the stack."
@@ -150,19 +152,19 @@ class RPNCalculator(tk.Tk):
                                       width=6, height=1,
                                       bg=self.colors["Enter"],
                                       command=self.process_input)
-        self.enter_button.grid(row=3, column=1, columnspan=2,
+        self.enter_button.grid(row=3, column=2, columnspan=2,
                                pady=5, sticky="e")
 
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
-                                     width=4, height=1,
+                                     width=2, height=1,
                                      bg=self.colors['help'][0],
                                      command=self.activate_help)
-        self.help_button.grid(row=7, column=2, pady=5)
+        self.help_button.grid(row=3, column=1, pady=5)
 
         # Initially, set layout
-        self.layout = 'small'  # 'small', 'wide1', 'wide2'
+        self.layout = 'wide2'  # 'small', 'wide1', 'wide2'
         self.create_button_layout(self.layout)
 
     def create_button_layout(self, layout):
@@ -191,12 +193,13 @@ class RPNCalculator(tk.Tk):
                 ('0', 7, 0, self.colors['digit']),
                 ('.', 7, 1, self.colors['digit']),
                 ('+', 7, 3, self.colors['op2']),
-                ('^', 7, 4, self.colors['op2'])
+                ('^', 7, 4, self.colors['op2']),
+                ('(-)', 7, 2, self.colors['digit'])
             ]
 
             self.clear_button_grid = (3, 0, 2, 'w')
             self.enter_button_grid = (3, 1, 2, 'e')
-            self.help_button_grid = (7, 2, 1, '')
+            self.help_button_grid = (3, 1, 1, '')
             self.entry_grid = (0, 0, 5, '')
             self.stack_label_grid = (1, 0, 5, '')
             self.history_label_grid = (2, 0, 5, '')
@@ -234,6 +237,7 @@ class RPNCalculator(tk.Tk):
             self.enter_button_grid = (3, 3, 2, '')
             self.enter_button.config(width=10)
             self.help_button_grid = (3, 0, 1, '')
+            self.help_button.config(width=5)
             self.entry_grid = (0, 0, 3, '')
             self.entry.config(width=15)
             self.stack_label_grid = (0, 3, 6, '')
@@ -263,7 +267,7 @@ class RPNCalculator(tk.Tk):
                 ('acos', 7, 7, self.colors['op1']),
                 ('atan', 7, 8, self.colors['op1']),
                 ('\u2295', 4, 0, self.colors['op2']),
-                ('E', 7, 2, self.colors['op2']),
+                ('(-)', 7, 2, self.colors['digit']),
             ]
 
         elif layout == 'wide2':
@@ -299,6 +303,7 @@ class RPNCalculator(tk.Tk):
             self.enter_button_grid = (3, 7, 2, '')
             self.enter_button.config(width=10)
             self.help_button_grid = (3, 4, 1, '')
+            self.help_button.config(width=4)
             self.entry_grid = (0, 0, 3, '')
             self.entry.config(width=15)
             self.stack_label_grid = (0, 3, 6, '')
@@ -327,7 +332,8 @@ class RPNCalculator(tk.Tk):
                 ('acos', 7, 2, self.colors['op1']),
                 ('atan', 7, 3, self.colors['op1']),
                 ('\u2295', 4, 4, self.colors['op2']),
-                ('E', 7, 6, self.colors['op2']),
+                ('(-)', 7, 6, self.colors['digit']),
+
             ]
         else:
             print("Invalid layout")
@@ -598,7 +604,11 @@ class RPNCalculator(tk.Tk):
             else:
                 # print("num")
                 # For numbers, just insert them into the entry field
-                self.entry.insert(tk.END, button_text)
+                if button_text == '(-)':
+                    # handle inputting negative numbers.
+                    self.entry.insert(tk.END, '-')
+                else:
+                    self.entry.insert(tk.END, button_text)
 
     def process_operator(self, operator, operand_count, eval_function=None):
         """

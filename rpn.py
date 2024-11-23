@@ -205,7 +205,6 @@ class CalculatorGUI(tk.Tk):
 
         self.operators = \
             self.rpn.operator_0 | self.rpn.operator_1 | self.rpn.operator_2
-
         # Regex magic to allow operators to be entered together with the
         # last number before the operator
         self.sorted_operators = sorted(self.operators, key=len, reverse=True)
@@ -231,23 +230,23 @@ class CalculatorGUI(tk.Tk):
             '7': "7; Seven. An excellent choise.",
             '8': "8; Eight. The first digit in alphabetical order.",
             '9': "9; Nine. First odd square.",
-            'π': "Pi is the circumference of a circle divided by its \
-                diameter.",
-            '\u03c4': "Tau is the circumference of a circle divided by its \
-                radius.",
-            'e': "Euler's number (e) is a mathematical constant approximately \
-                equal to 2.71828.",
+            'π': "Pi is the circumference of a circle divided by its "
+            + "diameter.",
+            '\u03c4': "Tau is the circumference of a circle divided by its "
+            + "radius.",
+            'e': "Euler's number (e) is a mathematical constant approximately "
+            + "equal to 2.71828.",
             '\u03c6': "Phi is the golden ratio. 1 / phi = phi - 1.",
             '+': "Addition operator. Adds two numbers.",
-            '-': "Subtraction operator. Subtracts the second number from the \
-                first.",
+            '-': "Subtraction operator. Subtracts the second number from the "
+            + "first.",
             '\u00d7': "Multiplication operator. Multiplies two numbers.",
             '/': "Division operator. Divides the first number by the second.",
-            '^': "Exponentiation operator. Raises the first number to the \
-                power of the second.",
+            '^': "Exponentiation operator. Raises the first number to the "
+            + "power of the second.",
             '÷': "Integer division. Returns the integer part after division.",
-            '%': "Modulus operator. Returns the remainder of the division of \
-                two numbers.",
+            '%': "Modulus operator. Returns the remainder of the division "
+            + "of two numbers.",
             '√': "Square root operator. Returns the square root of a number.",
             'sin': "Sine function. Returns the sine of an angle.",
             'cos': "Cosine function. Returns the cosine of an angle.",
@@ -255,31 +254,32 @@ class CalculatorGUI(tk.Tk):
             'asin': "Inverse sine function. Returns the inverse of sin.",
             'acos': "Inverse cosine function. Returns the inverse of cos.",
             'atan': "Inverse tangent function. Returns the inverse of tan",
-            'ln': "Natural logarithm function. Returns the natural logarithm \
-                of a number.",
-            'lg2': "Base-2 logarithm function. Returns the logarithm of a \
-                number with base 2.",
-            'log': "Base-10 logarithm function. Returns the logarithm of a \
-                number with base 10.",
-            '1/x': "Reciprocal operator. Returns the reciprocal (1 divided by \
-                the number).",
+            'ln': "Natural logarithm function. Returns the natural logarithm "
+            + "of a number.",
+            'lg2': "Base-2 logarithm function. Returns the logarithm of a "
+            + "number with base 2.",
+            'log': "Base-10 logarithm function. Returns the logarithm of a "
+            + "number with base 10.",
+            '1/x': "Reciprocal operator. Returns the reciprocal (1 divided "
+            + "by the number).",
             '2^x': "Raise 2 to the power of x.",
             '!': "Factorial function. Returns the factorial of a number.",
-            '=': "'=' on an RPN? Yeah, this rounds the number to the nearest \
-                integer.",
+            '=': "'=' on an RPN? Yeah, this rounds the number to the nearest "
+            + "integer.",
             'Rand': "Generates a random number between 0 and 1.",
-            'n√': "Nth root operator. Returns the nth root of the first \
-                number.",
-            '\u2295': "Circled Plus operator. Returns the Euclidean norm \
-                (distance) between two numbers.",
+            'n√': "Nth root operator. Returns the nth root of the first "
+            + "number.",
+            '\u2295': "Circled Plus operator. Returns the Euclidean norm "
+            + "(distance) between two numbers. Equivalent to "
+            + "['a', '2', '^', 'b', '2', '^', '+', '√']",
             'E': "Scientific notation. x, y, E is x * 10^y.",
             'sci': "Toggle various scientific functions.",
-            '?': "This is the help button. Click this and another button to \
-                get help on that other button.",
+            '?': "This is the help button. Click this and another button "
+            + "to get help on that other button.",
             '(-)': "Negative symbol for entering negative numbers.",
-            # 'Clear': "Clears the input. If no input, clears the stack. \
-            #     If no stack, clears history.",
-            # 'Enter': "Transfers your input number to the stack."
+            'Clear': "Clears the input. \nIf no input, clears the stack."
+            + "\nIf no stack, clears history.",
+            'Enter': "Transfers your input number to the stack."
         }
 
         # To track if help mode is active
@@ -297,6 +297,9 @@ class CalculatorGUI(tk.Tk):
             'sci': ['#ffa', '#fd5', '#fa0'],
             'help': ['#a66', '#a00']
         }
+
+        self.button_objs = {}
+        self.main_buttons = []  # Trying to keep track of all buttons
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
                               width=25, borderwidth=1, relief="solid")
@@ -306,7 +309,7 @@ class CalculatorGUI(tk.Tk):
                                         font=("Lucida Sans Unicode", 12),
                                         width=30, height=1, anchor="e")
 
-        # Shoe input history
+        # Show input history
         self.history_label = tk.Label(self, text="History: []",
                                       font=("Lucida Sans Unicode", 12),
                                       width=30, height=1, anchor="e")
@@ -316,30 +319,52 @@ class CalculatorGUI(tk.Tk):
                                       font=("Lucida Sans Unicode", 14),
                                       width=6, height=1,
                                       bg=self.colors["Clear"],
-                                      command=self.clear)
-
+                                      # command=self.clear,
+                                       command=lambda: self.on_button_click("Clear"),
+                                      )
+        self.main_buttons.append(self.clear_button)
         # "Enter" button to add current value to the stack
         self.enter_button = tk.Button(self, text="Enter",
                                       font=("Lucida Sans Unicode", 14),
                                       width=6, height=1,
                                       bg=self.colors["Enter"],
-                                      command=self.process_input)
-
+                                      # command=self.process_input,
+                                       command=lambda: self.on_button_click("Enter"),
+                                      )
+        self.main_buttons.append(self.enter_button)
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
                                      width=2, height=1,
                                      bg=self.colors['help'][0],
                                      command=self.activate_help)
-
-        # Initially, set layout
-        self.layout = 'wide'  # 'small', 'wide1', 'wide2'
+        self.main_buttons.append(self.help_button)
+        # Set layout
+        # self.layout = tk.StringVar()
+        # self.layout.set("small")
+        self.layout = 'small'  # 'small', 'wide1', 'wide2'
         self.create_button_layout(self.layout)
+
+        # Menu
+        menubar = tk.Menu()
+        self.config(menu=menubar)
+        # Create a 'Settings' menu
+        settings_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Settings", menu=settings_menu)
+        settings_menu.add_command(label="Regular", command=lambda: self.create_button_layout('small'))
+        settings_menu.add_command(label="Wide", command=lambda: self.create_button_layout('wide'))
+
+    def set_option(self, option):
+        # Update the selected_option variable when a menu item is clicked
+        self.selected_option.set(f"Selected: {option}")
+        # Optionally, display a message box when an option is selected
+        messagebox.showinfo("Option Selected", f"You selected {option}")
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout
         ('small' or 'wide')."""
         if layout == 'small':
+            self.geometry("330x360")
 
             self.buttons = [('\u221a', 3, 3, self.colors['op1']),  # root
                             ('sci', 3, 4, '#ffa'),
@@ -373,72 +398,6 @@ class CalculatorGUI(tk.Tk):
             self.enter_button_grid = (3, 1, 2, 'e')
             self.help_button_grid = (3, 1, 1, '')
 
-        # elif layout == 'wide1':
-        #     self.geometry("590x330")
-
-        #     # Wide layout (buttons rearranged for a wider view)
-        #     self.buttons = [
-        #         ('7', 4, 2, self.colors['digit']),
-        #         ('8', 4, 3, self.colors['digit']),
-        #         ('9', 4, 4, self.colors['digit']),
-        #         ('/', 7, 1, self.colors['op2']),
-        #         ('\u03c0', 6, 5, self.colors['number']),
-        #         ('4', 5, 2, self.colors['digit']),
-        #         ('5', 5, 3, self.colors['digit']),
-        #         ('6', 5, 4, self.colors['digit']),
-        #         ('\u00d7', 6, 1, self.colors['op2']),
-        #         ('%', 5, 0, self.colors['op2']),
-        #         ('1', 6, 2, self.colors['digit']),
-        #         ('2', 6, 3, self.colors['digit']),
-        #         ('3', 6, 4, self.colors['digit']),
-        #         ('-', 5, 1, self.colors['op2']),
-        #         ('\u00f7', 7, 0, self.colors['op2']),
-        #         ('0', 7, 3, self.colors['digit']),
-        #         ('.', 7, 4, self.colors['digit']),
-        #         ('+', 4, 1, self.colors['op2']),
-        #         ('^', 6, 0, self.colors['op2']),
-        #         ('\u221a', 4, 6, self.colors['op1']),
-        #         ('n√', 4, 7, self.colors['op2'])
-        #     ]
-
-        #     self.clear_button_grid = (3, 1, 2, '')
-        #     self.clear_button.config(width=10)
-        #     self.enter_button_grid = (3, 3, 2, '')
-        #     self.enter_button.config(width=10)
-        #     self.help_button_grid = (3, 0, 1, '')
-        #     self.help_button.config(width=4)
-        #     self.entry_grid = (0, 0, 3, '')
-        #     self.entry.config(width=15)
-        #     self.rpn.stack_label_grid = (0, 3, 6, '')
-        #     self.rpn.stack_label.config(width=36)
-        #     self.history_label_grid = (2, 0, 9, 'e')
-        #     self.history_label.config(width=55)
-
-        #     # New buttons in the wide layout
-        #     self.additional_buttons = [
-        #         ('Rand', 3, 5, self.colors['number']),
-        #         ('=', 3, 6, self.colors['op1']),
-        #         ('!', 3, 7, self.colors['op1']),
-        #         ('1/x', 3, 8, self.colors['op1']),
-        #         ('\u03c6', 4, 5, self.colors['number']),  # phi
-        #         # ('\u221a', 4, 6, self.colors['op2']),  # root
-        #         ('n\u221a', 4, 7, self.colors['op2']),  # nth root
-        #         ('2^x', 4, 8, self.colors['op1']),
-        #         ('e', 5, 5, self.colors['number']),
-        #         ('ln', 5, 6, self.colors['op1']),
-        #         ('log', 5, 7, self.colors['op1']),
-        #         ('lg2', 5, 8, self.colors['op1']),
-        #         ('sin', 6, 6, self.colors['op1']),
-        #         ('cos', 6, 7, self.colors['op1']),
-        #         ('tan', 6, 8, self.colors['op1']),
-        #         ('\u03c4', 7, 5, self.colors['number']),  # tau
-        #         ('asin', 7, 6, self.colors['op1']),
-        #         ('acos', 7, 7, self.colors['op1']),
-        #         ('atan', 7, 8, self.colors['op1']),
-        #         ('\u2295', 4, 0, self.colors['op2']),
-        #         ('(-)', 7, 2, self.colors['digit']),
-        #     ]
-
         elif layout == 'wide':
             self.geometry("590x330")
 
@@ -446,23 +405,23 @@ class CalculatorGUI(tk.Tk):
             self.buttons = [('7', 4, 4, self.colors['digit']),
                             ('8', 4, 5, self.colors['digit']),
                             ('9', 4, 6, self.colors['digit']),
-                            ('/', 4, 8, self.colors['op2']),
+                            ('/', 4, 7, self.colors['op2']),
                             ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
                             ('4', 5, 4, self.colors['digit']),
                             ('5', 5, 5, self.colors['digit']),
                             ('6', 5, 6, self.colors['digit']),
-                            ('\u00d7', 5, 8, self.colors['op2']),  # x
-                            ('%', 6, 7, self.colors['op2']),
+                            ('\u00d7', 5, 7, self.colors['op2']),  # x
+                            ('%', 6, 8, self.colors['op2']),
                             ('1', 6, 4, self.colors['digit']),
                             ('2', 6, 5, self.colors['digit']),
                             ('3', 6, 6, self.colors['digit']),
-                            ('-', 6, 8, self.colors['op2']),
-                            ('\u00f7', 7, 7, self.colors['op2']),  # div
+                            ('-', 6, 7, self.colors['op2']),
+                            ('\u00f7', 7, 8, self.colors['op2']),  # div
                             ('0', 7, 5, self.colors['digit']),
                             ('(-)', 7, 4, self.colors['digit']),
                             ('.', 7, 6, self.colors['digit']),
-                            ('+', 7, 8, self.colors['op2']),
-                            ('^', 5, 7, self.colors['op2']),
+                            ('+', 7, 7, self.colors['op2']),
+                            ('^', 5, 8, self.colors['op2']),
                             ('\u221a', 4, 1, self.colors['op1']),  # root
                             # Adding more buttons in wide view
                             ('n√', 4, 2, self.colors['op2']),
@@ -484,7 +443,7 @@ class CalculatorGUI(tk.Tk):
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
                             ('atan', 7, 3, self.colors['op1']),
-                            ('\u2295', 4, 7, self.colors['op2']),
+                            ('\u2295', 4, 8, self.colors['op2']),
                             ]
 
             # Set postion, size and shape for special buttons and fields
@@ -502,11 +461,12 @@ class CalculatorGUI(tk.Tk):
             self.history_label.config(width=55)
 
         else:
-            print("Invalid layout")
+            print(f"Invalid layout {layout}")
             return
-
         # Create the buttons for the number pad and operators with colors
-        self.button_objs = {}
+
+        self.clear_buttons()
+
         for (text, row, col, color) in self.buttons:
             button = tk.Button(self, text=text,
                                font=("Lucida Sans Unicode", 14),
@@ -550,9 +510,17 @@ class CalculatorGUI(tk.Tk):
                                 pady=5,
                                 sticky=self.history_label_grid[3])
 
-    def clear_button_objs(self):  # keep in gui
+    def clear_buttons(self):  # keep in gui
         """Clear any previous buttons from the grid."""
+        print(len(self.button_objs))
         for button in self.button_objs.values():
+            print(f"Forgetting button obj{button}")
+            button.grid_forget()
+        for thing in [self.enter_button, self.clear_button, self.enter_button]:
+            thing.grid_forget()
+            print(f"Forgetting thing {thing}")
+        for button in self.main_buttons:
+            print(f"Forgetting main button {button}")
             button.grid_forget()
 
         self.button_objs.clear()
@@ -578,7 +546,7 @@ class CalculatorGUI(tk.Tk):
             if self.button_objs[k].cget('text') in {'\u03c0', '\u03c4', '\u03c6'}:
                 self.button_objs[k].config(font=("Symbol", 14))
             else:
-                self.button_objs[k].config(font=("Arial", 14))
+                self.button_objs[k].config(font=("Lucida Sans Unicode", 14))
 
     def toggle_sci_mode(self):  # keep in gui
         """Toggle between scientific and normal mode."""
@@ -639,6 +607,10 @@ class CalculatorGUI(tk.Tk):
         elif button_text == 'sci':
             # Toggle the sci mode when the "sci" button is clicked
             self.toggle_sci_mode()
+        elif button_text == "Enter":
+            self.process_input()
+        elif button_text == "Clear":
+            self.clear()
         else:
             # print("not sci")
             # For operators, we insert the operator and immediately calculate
@@ -680,8 +652,9 @@ class CalculatorGUI(tk.Tk):
             # Always update the stack_label to show the current stack
             self.update_display()
         else:
-            messagebox.showerror("Error",
-                                 "Please enter a valid number or operator.")
+            pass
+            # messagebox.showerror("Error",
+            #                      "Please enter a valid number or operator.")
 
     def clear(self):
         """Clear various variables when the Clear button is pressed."""

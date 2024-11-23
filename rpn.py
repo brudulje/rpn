@@ -108,14 +108,16 @@ class RPNCalculator(tk.Tk):
 
         self.sci_mode = 0  # Initially not in scientific mode
         self.colors = {
-            'num': 'lightblue',
-            'op': 'lightgreen',
-            'sci': '#ffa',
+            'digit': '#ade',  # close to 'lightblue',
+            'number': '#69b',  # slightly darker blue
+            'op1': '#9e9',  # 'lightgreen',
+            'op2': '#6b6',  # slightly darker green
             'Clear': 'lightgray',
             'Enter': 'darkgray',
-            '?': '#6b6',
+            # '?': '#6b6',
+            'sci': ['#ffa', '#fd5', '#fa0'],
+            'help': ['#a66', '#a00']
         }
-
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
                               width=25, borderwidth=1, relief="solid")
@@ -154,12 +156,13 @@ class RPNCalculator(tk.Tk):
         # "Help" button to clear the input
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
-                                     width=4, height=1, bg=self.colors["?"],
+                                     width=4, height=1,
+                                     bg=self.colors['help'][0],
                                      command=self.activate_help)
         self.help_button.grid(row=7, column=2, pady=5)
 
         # Initially, set layout
-        self.layout = 'wide2'  # 'small', 'wide1', 'wide2'
+        self.layout = 'small'  # 'small', 'wide1', 'wide2'
         self.create_button_layout(self.layout)
 
     def create_button_layout(self, layout):
@@ -168,27 +171,27 @@ class RPNCalculator(tk.Tk):
         if layout == 'small':
             # Small layout (as defined originally)
             self.buttons = [
-                ('\u221a', 3, 3, self.colors['op']),
+                ('\u221a', 3, 3, self.colors['op1']),
                 ('sci', 3, 4, '#ffa'),
-                ('7', 4, 0, self.colors['num']),
-                ('8', 4, 1, self.colors['num']),
-                ('9', 4, 2, self.colors['num']),
-                ('/', 4, 3, self.colors['op']),
-                ('\u03c0', 4, 4, self.colors['op']),
-                ('4', 5, 0, self.colors['num']),
-                ('5', 5, 1, self.colors['num']),
-                ('6', 5, 2, self.colors['num']),
-                ('\u00d7', 5, 3, self.colors['op']),
-                ('%', 5, 4, self.colors['op']),
-                ('1', 6, 0, self.colors['num']),
-                ('2', 6, 1, self.colors['num']),
-                ('3', 6, 2, self.colors['num']),
-                ('-', 6, 3, self.colors['op']),
-                ('\u00f7', 6, 4, self.colors['op']),
-                ('0', 7, 0, self.colors['num']),
-                ('.', 7, 1, self.colors['num']),
-                ('+', 7, 3, self.colors['op']),
-                ('^', 7, 4, self.colors['op'])
+                ('7', 4, 0, self.colors['digit']),
+                ('8', 4, 1, self.colors['digit']),
+                ('9', 4, 2, self.colors['digit']),
+                ('/', 4, 3, self.colors['op2']),
+                ('\u03c0', 4, 4, self.colors['number']),
+                ('4', 5, 0, self.colors['digit']),
+                ('5', 5, 1, self.colors['digit']),
+                ('6', 5, 2, self.colors['digit']),
+                ('\u00d7', 5, 3, self.colors['op2']),
+                ('%', 5, 4, self.colors['op2']),
+                ('1', 6, 0, self.colors['digit']),
+                ('2', 6, 1, self.colors['digit']),
+                ('3', 6, 2, self.colors['digit']),
+                ('-', 6, 3, self.colors['op2']),
+                ('\u00f7', 6, 4, self.colors['op2']),
+                ('0', 7, 0, self.colors['digit']),
+                ('.', 7, 1, self.colors['digit']),
+                ('+', 7, 3, self.colors['op2']),
+                ('^', 7, 4, self.colors['op2'])
             ]
 
             self.clear_button_grid = (3, 0, 2, 'w')
@@ -203,27 +206,27 @@ class RPNCalculator(tk.Tk):
 
             # Wide layout (buttons rearranged for a wider view)
             self.buttons = [
-                ('7', 4, 2, self.colors['num']),
-                ('8', 4, 3, self.colors['num']),
-                ('9', 4, 4, self.colors['num']),
-                ('/', 7, 1, self.colors['op']),
-                ('\u03c0', 6, 5, self.colors['op']),
-                ('4', 5, 2, self.colors['num']),
-                ('5', 5, 3, self.colors['num']),
-                ('6', 5, 4, self.colors['num']),
-                ('\u00d7', 6, 1, self.colors['op']),
-                ('%', 5, 0, self.colors['op']),
-                ('1', 6, 2, self.colors['num']),
-                ('2', 6, 3, self.colors['num']),
-                ('3', 6, 4, self.colors['num']),
-                ('-', 5, 1, self.colors['op']),
-                ('\u00f7', 7, 0, self.colors['op']),
-                ('0', 7, 3, self.colors['num']),
-                ('.', 7, 4, self.colors['num']),
-                ('+', 4, 1, self.colors['op']),
-                ('^', 6, 0, self.colors['op']),
-                ('\u221a', 4, 6, self.colors['op']),  # ('sci', 7, 1, '#ffa'),
-                ('n√', 4, 7, self.colors['op'])
+                ('7', 4, 2, self.colors['digit']),
+                ('8', 4, 3, self.colors['digit']),
+                ('9', 4, 4, self.colors['digit']),
+                ('/', 7, 1, self.colors['op2']),
+                ('\u03c0', 6, 5, self.colors['number']),
+                ('4', 5, 2, self.colors['digit']),
+                ('5', 5, 3, self.colors['digit']),
+                ('6', 5, 4, self.colors['digit']),
+                ('\u00d7', 6, 1, self.colors['op2']),
+                ('%', 5, 0, self.colors['op2']),
+                ('1', 6, 2, self.colors['digit']),
+                ('2', 6, 3, self.colors['digit']),
+                ('3', 6, 4, self.colors['digit']),
+                ('-', 5, 1, self.colors['op2']),
+                ('\u00f7', 7, 0, self.colors['op2']),
+                ('0', 7, 3, self.colors['digit']),
+                ('.', 7, 4, self.colors['digit']),
+                ('+', 4, 1, self.colors['op2']),
+                ('^', 6, 0, self.colors['op2']),
+                ('\u221a', 4, 6, self.colors['op1']),  # ('sci', 7, 1, '#ffa'),
+                ('n√', 4, 7, self.colors['op2'])
             ]
 
             self.clear_button_grid = (3, 1, 2, '')
@@ -240,27 +243,27 @@ class RPNCalculator(tk.Tk):
 
             # New buttons in the wide layout
             self.additional_buttons = [
-                ('Rand', 3, 5, self.colors['op']),
-                ('=', 3, 6, self.colors['op']),
-                ('!', 3, 7, self.colors['op']),
-                ('1/x', 3, 8, self.colors['op']),
-                ('\u03c6', 4, 5, self.colors['op']),  # phi
-                # ('\u221a', 4, 6, self.colors['op']),  # root
-                ('n\u221a', 4, 7, self.colors['op']),  # nth root
-                ('2^x', 4, 8, self.colors['op']),
-                ('e', 5, 5, self.colors['op']),
-                ('ln', 5, 6, self.colors['op']),
-                ('log', 5, 7, self.colors['op']),
-                ('lg2', 5, 8, self.colors['op']),
-                ('sin', 6, 6, self.colors['op']),
-                ('cos', 6, 7, self.colors['op']),
-                ('tan', 6, 8, self.colors['op']),
-                ('\u03c4', 7, 5, self.colors['op']),  # tau
-                ('asin', 7, 6, self.colors['op']),
-                ('acos', 7, 7, self.colors['op']),
-                ('atan', 7, 8, self.colors['op']),
-                ('\u2295', 4, 0, self.colors['op']),
-                ('E', 7, 2, self.colors['op']),
+                ('Rand', 3, 5, self.colors['number']),
+                ('=', 3, 6, self.colors['op1']),
+                ('!', 3, 7, self.colors['op1']),
+                ('1/x', 3, 8, self.colors['op1']),
+                ('\u03c6', 4, 5, self.colors['number']),  # phi
+                # ('\u221a', 4, 6, self.colors['op2']),  # root
+                ('n\u221a', 4, 7, self.colors['op2']),  # nth root
+                ('2^x', 4, 8, self.colors['op1']),
+                ('e', 5, 5, self.colors['number']),
+                ('ln', 5, 6, self.colors['op1']),
+                ('log', 5, 7, self.colors['op1']),
+                ('lg2', 5, 8, self.colors['op1']),
+                ('sin', 6, 6, self.colors['op1']),
+                ('cos', 6, 7, self.colors['op1']),
+                ('tan', 6, 8, self.colors['op1']),
+                ('\u03c4', 7, 5, self.colors['number']),  # tau
+                ('asin', 7, 6, self.colors['op1']),
+                ('acos', 7, 7, self.colors['op1']),
+                ('atan', 7, 8, self.colors['op1']),
+                ('\u2295', 4, 0, self.colors['op2']),
+                ('E', 7, 2, self.colors['op2']),
             ]
 
         elif layout == 'wide2':
@@ -268,27 +271,27 @@ class RPNCalculator(tk.Tk):
 
             # Wide layout (buttons rearranged for a wider view)
             self.buttons = [
-                ('7', 4, 6, self.colors['num']),
-                ('8', 4, 7, self.colors['num']),
-                ('9', 4, 8, self.colors['num']),
-                ('/', 7, 5, self.colors['op']),
-                ('\u03c0', 6, 0, self.colors['op']),  # pi(?)
-                ('4', 5, 6, self.colors['num']),
-                ('5', 5, 7, self.colors['num']),
-                ('6', 5, 8, self.colors['num']),
-                ('\u00d7', 6, 5, self.colors['op']),
-                ('%', 5, 4, self.colors['op']),
-                ('1', 6, 6, self.colors['num']),
-                ('2', 6, 7, self.colors['num']),
-                ('3', 6, 8, self.colors['num']),
-                ('-', 5, 5, self.colors['op']),
-                ('\u00f7', 7, 4, self.colors['op']),
-                ('0', 7, 7, self.colors['num']),
-                ('.', 7, 8, self.colors['num']),
-                ('+', 4, 5, self.colors['op']),
-                ('^', 6, 4, self.colors['op']),
-                ('\u221a', 4, 1, self.colors['op']),  # ('sci', 7, 1, '#ffa'),
-                ('n√', 4, 2, self.colors['op'])
+                ('7', 4, 6, self.colors['digit']),
+                ('8', 4, 7, self.colors['digit']),
+                ('9', 4, 8, self.colors['digit']),
+                ('/', 7, 5, self.colors['op2']),
+                ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
+                ('4', 5, 6, self.colors['digit']),
+                ('5', 5, 7, self.colors['digit']),
+                ('6', 5, 8, self.colors['digit']),
+                ('\u00d7', 6, 5, self.colors['op2']),
+                ('%', 5, 4, self.colors['op2']),
+                ('1', 6, 6, self.colors['digit']),
+                ('2', 6, 7, self.colors['digit']),
+                ('3', 6, 8, self.colors['digit']),
+                ('-', 5, 5, self.colors['op2']),
+                ('\u00f7', 7, 4, self.colors['op2']),
+                ('0', 7, 7, self.colors['digit']),
+                ('.', 7, 8, self.colors['digit']),
+                ('+', 4, 5, self.colors['op2']),
+                ('^', 6, 4, self.colors['op2']),
+                ('\u221a', 4, 1, self.colors['op1']),  # ('sci', 7, 1, '#ffa'),
+                ('n√', 4, 2, self.colors['op2'])
             ]
 
             self.clear_button_grid = (3, 5, 2, '')
@@ -305,26 +308,26 @@ class RPNCalculator(tk.Tk):
 
             # New buttons in the wide layout
             self.additional_buttons = [
-                ('Rand', 3, 0, self.colors['op']),
-                ('=', 3, 1, self.colors['op']),
-                ('!', 3, 2, self.colors['op']),
-                ('1/x', 3, 3, self.colors['op']),
-                ('\u03c6', 4, 0, self.colors['op']),  # phi
-                ('n\u221a', 4, 2, self.colors['op']),  # nth root
-                ('2^x', 4, 3, self.colors['op']),
-                ('e', 5, 0, self.colors['op']),
-                ('ln', 5, 1, self.colors['op']),
-                ('log', 5, 2, self.colors['op']),
-                ('lg2', 5, 3, self.colors['op']),
-                ('sin', 6, 1, self.colors['op']),
-                ('cos', 6, 2, self.colors['op']),
-                ('tan', 6, 3, self.colors['op']),
-                ('\u03c4', 7, 0, self.colors['op']),  # tau
-                ('asin', 7, 1, self.colors['op']),
-                ('acos', 7, 2, self.colors['op']),
-                ('atan', 7, 3, self.colors['op']),
-                ('\u2295', 4, 4, self.colors['op']),
-                ('E', 7, 6, self.colors['op']),
+                ('Rand', 3, 0, self.colors['number']),
+                ('=', 3, 1, self.colors['op1']),
+                ('!', 3, 2, self.colors['op1']),
+                ('1/x', 3, 3, self.colors['op1']),
+                ('\u03c6', 4, 0, self.colors['number']),  # phi
+                ('n\u221a', 4, 2, self.colors['op2']),  # nth root
+                ('2^x', 4, 3, self.colors['op1']),
+                ('e', 5, 0, self.colors['number']),
+                ('ln', 5, 1, self.colors['op1']),
+                ('log', 5, 2, self.colors['op1']),
+                ('lg2', 5, 3, self.colors['op1']),
+                ('sin', 6, 1, self.colors['op1']),
+                ('cos', 6, 2, self.colors['op1']),
+                ('tan', 6, 3, self.colors['op1']),
+                ('\u03c4', 7, 0, self.colors['number']),  # tau
+                ('asin', 7, 1, self.colors['op1']),
+                ('acos', 7, 2, self.colors['op1']),
+                ('atan', 7, 3, self.colors['op1']),
+                ('\u2295', 4, 4, self.colors['op2']),
+                ('E', 7, 6, self.colors['op2']),
             ]
         else:
             print("Invalid layout")
@@ -519,7 +522,7 @@ class RPNCalculator(tk.Tk):
         # There are 3 modes.
         self.sci_mode = (self.sci_mode + 1) % 3  # Change to next mode
 
-        sci_button_colors = ['#ffa', '#fd6', '#fa0']
+        # sci_button_colors = ['#ffa', '#fd6', '#fa0']
         # sci_button_texts = ['Sci', 'sCi', 'scI']  # No, looks ugly
         sci_layouts = [{'√': '√',
                         '/': '/',
@@ -557,9 +560,20 @@ class RPNCalculator(tk.Tk):
         for k, v in sci_layouts[self.sci_mode].items():
             self.button_objs[k].config(text=v)
             self.button_objs[k].config(command=self.create_button_handler(v))
+            if k in {'%', '/'}:
+                # Change the color of some of the buttons
+                if self.button_objs[k].cget('text') in {'e', 'Rand'}:
+                    self.button_objs[k].config(bg=self.colors['number'])
+                else:
+                    self.button_objs[k].config(bg=self.colors['op2'])
+            if self.button_objs[k].cget('text') in self.operator_2:
+                self.button_objs[k].config(bg=self.colors['op2'])
+            if self.button_objs[k].cget('text') in self.operator_1:
+                self.button_objs[k].config(bg=self.colors['op1'])
 
         # Update sci button bg color
-        self.button_objs['sci'].config(bg=sci_button_colors[self.sci_mode])
+        # self.button_objs['sci'].config(bg=sci_button_colors[self.sci_mode])
+        self.button_objs['sci'].config(bg=self.colors['sci'][self.sci_mode])
 
     def on_button_click(self, button_text):
         """Handle button click."""
@@ -687,13 +701,12 @@ class RPNCalculator(tk.Tk):
             self.deactivate_help()
         else:
             self.help_mode = True
-            # set color '#0a6'
-            self.help_button.config(bg='#080')  # 'lightgreen #9e9
+            self.help_button.config(bg=self.colors['help'][1])
             self.entry.delete(0, tk.END)
             self.entry.insert(tk.END, "Click for help.")  # Display help mode
 
     def deactivate_help(self):
-        self.help_button.config(bg='#6b6')
+        self.help_button.config(bg=self.colors['help'][0])
         self.entry.delete(0, tk.END)
         self.help_mode = False
 

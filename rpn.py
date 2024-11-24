@@ -107,10 +107,16 @@ class RPN():
             return math.atan(operand)
         elif operator == '!':
             try:
-                return math.factorial(operand)
+                return math.factorial(math.floor(operand)) \
+                    * math.ceil(operand)**(operand - math.floor(operand))
+            #     return math.factorial(operand)
             except ValueError:
-                messagebox.showerror("Error",
-                                     f"Cant run {operator} on {operand}.")
+                if operand < 0:
+                    messagebox.showerror("Error",
+                                         "Cant run '!' on negative numbers.")
+                else:
+                    messagebox.showerror("Error",
+                                         f"Cant run {operator} on {operand}.")
 
         elif operator == '=':  # Rounds last operand to an int
             return int(operand)
@@ -264,7 +270,11 @@ class CalculatorGUI(tk.Tk):
             '1/x': "Reciprocal operator. Returns the reciprocal (1 divided "
             + "by the number).",
             '2^x': "Raise 2 to the power of x.",
-            '!': "Factorial function. Returns the factorial of a number.",
+            '!': "Factorial function. Returns the factorial of a integer. "
+            + "For floats, it returns the factorial of the integer part "
+            + "times 1 + that integer raised to the fractional part. "
+            + "Note: This is not the regular definition of factorials "
+            + "for non-integer numbers.",
             '=': "'=' on an RPN? Yeah, this rounds the number to the nearest "
             + "integer.",
             'Rand': "Generates a random number between 0 and 1.",
@@ -318,7 +328,6 @@ class CalculatorGUI(tk.Tk):
         settings_menu.add_command(label="Wide and nerdy",
                                   command=lambda: self.create_button_layout
                                   ('wide'))
-
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout

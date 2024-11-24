@@ -302,48 +302,7 @@ class CalculatorGUI(tk.Tk):
         self.button_objs = {}
         self.main_buttons = []  # Trying to keep track of all buttons
         self.main_labels = []
-        # Entry field for RPN expression
-        self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
-                              width=25, borderwidth=1, relief="solid")
-        self.main_labels.append(self.entry)
-        # Show the stack
-        self.rpn.stack_label = tk.Label(self, text="Stack: []",
-                                        font=("Lucida Sans Unicode", 12),
-                                        width=30, height=1, anchor="e")
-        self.main_labels.append(self.rpn.stack_label)
-        # Show input history
-        self.history_label = tk.Label(self, text="History: []",
-                                      font=("Lucida Sans Unicode", 12),
-                                      width=30, height=1, anchor="e")
-        self.main_labels.append(self.history_label)
-        # "Clear" button to clear the input
-        self.clear_button = tk.Button(self, text="Clear",
-                                      font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1,
-                                      bg=self.colors["Clear"],
-                                      # command=self.clear,
-                                       command=lambda: self.on_button_click("Clear"),
-                                      )
-        self.main_buttons.append(self.clear_button)
-        # "Enter" button to add current value to the stack
-        self.enter_button = tk.Button(self, text="Enter",
-                                      font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1,
-                                      bg=self.colors["Enter"],
-                                      # command=self.process_input,
-                                       command=lambda: self.on_button_click("Enter"),
-                                      )
-        self.main_buttons.append(self.enter_button)
-        # "Help" button to clear the input
-        self.help_button = tk.Button(self, text="?",
-                                     font=("Lucida Sans Unicode", 14),
-                                     width=2, height=1,
-                                     bg=self.colors['help'][0],
-                                     command=self.activate_help)
-        self.main_buttons.append(self.help_button)
         # Set layout
-        # self.layout = tk.StringVar()
-        # self.layout.set("small")
         self.layout = 'small'  # 'small', 'wide'
         self.create_button_layout(self.layout)
 
@@ -353,28 +312,66 @@ class CalculatorGUI(tk.Tk):
         # Create a 'Settings' menu
         settings_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Settings", menu=settings_menu)
-        settings_menu.add_command(label="Fairly square", command=lambda: self.create_button_layout('small'))
-        settings_menu.add_command(label="Wide and nerdy", command=lambda: self.create_button_layout('wide'))
+        settings_menu.add_command(label="Fairly square",
+                                  command=lambda: self.create_button_layout
+                                  ('small'))
+        settings_menu.add_command(label="Wide and nerdy",
+                                  command=lambda: self.create_button_layout
+                                  ('wide'))
 
-    # def set_option(self, option):
-    #     # Update the selected_option variable when a menu item is clicked
-    #     self.selected_option.set(f"Selected: {option}")
-    #     # Optionally, display a message box when an option is selected
-    #     messagebox.showinfo("Option Selected", f"You selected {option}")
-
-    # def update_geometry(self, layout):
-    #     if layout == 'small':
-    #         self.geometry("330x360")
-    #     else:
-    #         self.geometry("590x330")
-    #     self.update_idletasks()
-    #     # time.sleep(1)
-    #     # self.after_idle(self.create_button_layout(layout))
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout
         ('small' or 'wide')."""
-        self.layout = layout
+
+        # Entry field for RPN expression
+        self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
+                              width=25, borderwidth=1, relief="solid")
+        self.main_labels.append(self.entry)
+
+        # Show the stack
+        self.rpn.stack_label = tk.Label(self, text="Stack: []",
+                                        font=("Lucida Sans Unicode", 12),
+                                        width=30, height=1, anchor="e")
+        self.main_labels.append(self.rpn.stack_label)
+
+        # Show input history
+        self.history_label = tk.Label(self, text="History: []",
+                                      font=("Lucida Sans Unicode", 12),
+                                      width=30, height=1, anchor="e")
+        self.main_labels.append(self.history_label)
+
+        # "Clear" button to clear the input
+        self.clear_button = tk.Button(self, text="Clear",
+                                      font=("Lucida Sans Unicode", 14),
+                                      width=6, height=1,
+                                      bg=self.colors["Clear"],
+                                      # command=self.clear,
+                                      command=lambda: self.on_button_click
+                                      ("Clear"),
+                                      )
+        self.main_buttons.append(self.clear_button)
+
+        # "Enter" button to add current value to the stack
+        self.enter_button = tk.Button(self, text="Enter",
+                                      font=("Lucida Sans Unicode", 14),
+                                      width=6, height=1,
+                                      bg=self.colors["Enter"],
+                                      # command=self.process_input,
+                                      command=lambda: self.on_button_click
+                                      ("Enter"),
+                                      )
+        self.main_buttons.append(self.enter_button)
+
+        # "Help" button to clear the input
+        self.help_button = tk.Button(self, text="?",
+                                     font=("Lucida Sans Unicode", 14),
+                                     width=2, height=1,
+                                     bg=self.colors['help'][0],
+                                     command=self.activate_help)
+        self.main_buttons.append(self.help_button)
+
+        # self.layout = layout
         if layout == 'small':
             self.geometry("330x360")
 
@@ -404,17 +401,17 @@ class CalculatorGUI(tk.Tk):
 
             # Set position for special buttons and fields
             self.entry_grid = (0, 0, 5, '')
-            self.entry.config(width=25)
+            self.entry_width = 25
             self.rpn.stack_label_grid = (1, 0, 5, '')
-            self.rpn.stack_label.config(width=30)
+            self.rpn.stack_label_width = 30
             self.history_label_grid = (2, 0, 5, '')
-            self.history_label.config(width=30)
+            self.history_label_width = 30
             self.clear_button_grid = (3, 0, 2, 'w')
-            self.clear_button.config(width=6)
+            self.clear_button_width = 6
             self.enter_button_grid = (3, 1, 2, 'e')
-            self.enter_button.config(width=6)
+            self.enter_button_width = 6
             self.help_button_grid = (3, 1, 1, '')
-            self.help_button.config(width=2)
+            self.help_button_width = 2
 
         elif layout == 'wide':
             self.geometry("590x330")
@@ -466,30 +463,27 @@ class CalculatorGUI(tk.Tk):
 
             # Set postion, size and shape for special buttons and fields
             self.clear_button_grid = (3, 6, 2, '')
-            self.clear_button.config(width=10)
+            self.clear_button_width = 10
             self.enter_button_grid = (3, 4, 2, '')
-            self.enter_button.config(width=10)
+            self.enter_button_width = 10
             self.help_button_grid = (3, 8, 1, '')
-            self.help_button.config(width=4)
+            self.help_button_width = 4
             self.entry_grid = (0, 0, 3, '')
-            self.entry.config(width=15)
+            self.entry_width = 15
             self.rpn.stack_label_grid = (0, 3, 6, '')
-            self.rpn.stack_label.config(width=36)
+            self.rpn.stack_label_width = 36
             self.history_label_grid = (2, 0, 9, 'e')
-            self.history_label.config(width=55)
+            self.history_label_width = 55
 
         else:
             print(f"Invalid layout {layout}")
             return
 
         # Update geometry etc
-        # self.update_geometry(layout)
-        self.update_idletasks()
-        # time.sleep(1)
+        # self.update_idletasks()
 
         # Create the buttons for the number pad and operators with colors
         self.forget_grid()
-        self.update_idletasks()
         for (text, row, col, color) in self.buttons:
             button = tk.Button(self, text=text,
                                font=("Lucida Sans Unicode", 14),
@@ -498,40 +492,49 @@ class CalculatorGUI(tk.Tk):
             button.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
             self.button_objs[text] = button
 
-        # Change font on the greek letter buttons
-        # self.button_objs['π'].config(font=("Symbol", 14))
+        # Set correct font and colors on buttons
         self.update_buttons()
 
-        # Reposition Clear, Enter, and Help buttons
+        # Reposition, resize Clear, Enter, and Help buttons
         self.clear_button.grid(row=self.clear_button_grid[0],
                                column=self.clear_button_grid[1],
                                columnspan=self.clear_button_grid[2],
                                pady=5,
                                sticky=self.clear_button_grid[3])
+        self.clear_button.config(width=self.clear_button_width)
+
         self.enter_button.grid(row=self.enter_button_grid[0],
                                column=self.enter_button_grid[1],
                                columnspan=self.enter_button_grid[2],
                                pady=5,
                                sticky=self.enter_button_grid[3])
+        self.enter_button.config(width=self.enter_button_width)
+
         self.help_button.grid(row=self.help_button_grid[0],
                               column=self.help_button_grid[1],
                               pady=5)
+        self.help_button.config(width=self.help_button_width)
 
-        # Reposition Entry, Stack and History labels
+        # Reposition, resize Entry, Stack and History labels
         self.entry.grid(row=self.entry_grid[0], column=self.entry_grid[1],
                         columnspan=self.entry_grid[2],
                         pady=5,
                         sticky=self.entry_grid[3])
+        self.entry.config(width=self.entry_width)
+
         self.rpn.stack_label.grid(row=self.rpn.stack_label_grid[0],
                                   column=self.rpn.stack_label_grid[1],
                                   columnspan=self.rpn.stack_label_grid[2],
                                   pady=5,
                                   sticky=self.history_label_grid[3])
+        self.rpn.stack_label.config(width=self.rpn.stack_label_width)
+
         self.history_label.grid(row=self.history_label_grid[0],
                                 column=self.history_label_grid[1],
                                 columnspan=self.history_label_grid[2],
                                 pady=5,
                                 sticky=self.history_label_grid[3])
+        self.history_label.config(width=self.history_label_width)
 
     def forget_grid(self):  # keep in gui
         """Clear any previous buttons from the grid."""
@@ -539,18 +542,13 @@ class CalculatorGUI(tk.Tk):
         for key, button in self.button_objs.items():
             # print(f"Forgetting button obj {button}, {key} ")
             button.grid_forget()
-        # for thing in [self.enter_button, self.clear_button, self.help_button]:
-        #     thing.grid_forget()
-        #     print(f"Forgetting thing {thing}")
+        self.button_objs.clear()
+
         for button in self.main_buttons:
             # print(f"Forgetting main button {button}, {button.cget('text')}")
             button.grid_forget()
-        # print(f"{len(self.button_objs)=}")
 
-        self.button_objs.clear()
-        # print(f"{len(self.button_objs)=}")
         for label in self.main_labels:
-            # print(f"Forgetting label {label}")
             label.grid_forget()
 
     def create_button_handler(self, text):  # keep in gui

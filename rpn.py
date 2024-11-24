@@ -3,6 +3,7 @@ from tkinter import messagebox
 import math
 import random
 import re
+# import time
 
 
 class RPN():
@@ -300,20 +301,21 @@ class CalculatorGUI(tk.Tk):
 
         self.button_objs = {}
         self.main_buttons = []  # Trying to keep track of all buttons
+        self.main_labels = []
         # Entry field for RPN expression
         self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
                               width=25, borderwidth=1, relief="solid")
-
+        self.main_labels.append(self.entry)
         # Show the stack
         self.rpn.stack_label = tk.Label(self, text="Stack: []",
                                         font=("Lucida Sans Unicode", 12),
                                         width=30, height=1, anchor="e")
-
+        self.main_labels.append(self.rpn.stack_label)
         # Show input history
         self.history_label = tk.Label(self, text="History: []",
                                       font=("Lucida Sans Unicode", 12),
                                       width=30, height=1, anchor="e")
-
+        self.main_labels.append(self.history_label)
         # "Clear" button to clear the input
         self.clear_button = tk.Button(self, text="Clear",
                                       font=("Lucida Sans Unicode", 14),
@@ -342,7 +344,7 @@ class CalculatorGUI(tk.Tk):
         # Set layout
         # self.layout = tk.StringVar()
         # self.layout.set("small")
-        self.layout = 'small'  # 'small', 'wide1', 'wide2'
+        self.layout = 'small'  # 'small', 'wide'
         self.create_button_layout(self.layout)
 
         # Menu
@@ -351,18 +353,28 @@ class CalculatorGUI(tk.Tk):
         # Create a 'Settings' menu
         settings_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Settings", menu=settings_menu)
-        settings_menu.add_command(label="Regular", command=lambda: self.create_button_layout('small'))
-        settings_menu.add_command(label="Wide", command=lambda: self.create_button_layout('wide'))
+        settings_menu.add_command(label="Fairly square", command=lambda: self.create_button_layout('small'))
+        settings_menu.add_command(label="Wide and nerdy", command=lambda: self.create_button_layout('wide'))
 
-    def set_option(self, option):
-        # Update the selected_option variable when a menu item is clicked
-        self.selected_option.set(f"Selected: {option}")
-        # Optionally, display a message box when an option is selected
-        messagebox.showinfo("Option Selected", f"You selected {option}")
+    # def set_option(self, option):
+    #     # Update the selected_option variable when a menu item is clicked
+    #     self.selected_option.set(f"Selected: {option}")
+    #     # Optionally, display a message box when an option is selected
+    #     messagebox.showinfo("Option Selected", f"You selected {option}")
+
+    # def update_geometry(self, layout):
+    #     if layout == 'small':
+    #         self.geometry("330x360")
+    #     else:
+    #         self.geometry("590x330")
+    #     self.update_idletasks()
+    #     # time.sleep(1)
+    #     # self.after_idle(self.create_button_layout(layout))
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout
         ('small' or 'wide')."""
+        self.layout = layout
         if layout == 'small':
             self.geometry("330x360")
 
@@ -392,11 +404,17 @@ class CalculatorGUI(tk.Tk):
 
             # Set position for special buttons and fields
             self.entry_grid = (0, 0, 5, '')
+            self.entry.config(width=25)
             self.rpn.stack_label_grid = (1, 0, 5, '')
+            self.rpn.stack_label.config(width=30)
             self.history_label_grid = (2, 0, 5, '')
+            self.history_label.config(width=30)
             self.clear_button_grid = (3, 0, 2, 'w')
+            self.clear_button.config(width=6)
             self.enter_button_grid = (3, 1, 2, 'e')
+            self.enter_button.config(width=6)
             self.help_button_grid = (3, 1, 1, '')
+            self.help_button.config(width=2)
 
         elif layout == 'wide':
             self.geometry("590x330")
@@ -424,7 +442,7 @@ class CalculatorGUI(tk.Tk):
                             ('^', 5, 8, self.colors['op2']),
                             ('\u221a', 4, 1, self.colors['op1']),  # root
                             # Adding more buttons in wide view
-                            ('n√', 4, 2, self.colors['op2']),
+                            # ('n√', 4, 2, self.colors['op2']),
                             ('Rand', 3, 0, self.colors['number']),
                             ('=', 3, 1, self.colors['op1']),
                             ('!', 3, 2, self.colors['op1']),
@@ -443,7 +461,7 @@ class CalculatorGUI(tk.Tk):
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
                             ('atan', 7, 3, self.colors['op1']),
-                            ('\u2295', 4, 8, self.colors['op2']),
+                            ('\u2295', 4, 8, self.colors['op2'])
                             ]
 
             # Set postion, size and shape for special buttons and fields
@@ -463,10 +481,15 @@ class CalculatorGUI(tk.Tk):
         else:
             print(f"Invalid layout {layout}")
             return
+
+        # Update geometry etc
+        # self.update_geometry(layout)
+        self.update_idletasks()
+        # time.sleep(1)
+
         # Create the buttons for the number pad and operators with colors
-
-        self.clear_buttons()
-
+        self.forget_grid()
+        self.update_idletasks()
         for (text, row, col, color) in self.buttons:
             button = tk.Button(self, text=text,
                                font=("Lucida Sans Unicode", 14),
@@ -510,20 +533,25 @@ class CalculatorGUI(tk.Tk):
                                 pady=5,
                                 sticky=self.history_label_grid[3])
 
-    def clear_buttons(self):  # keep in gui
+    def forget_grid(self):  # keep in gui
         """Clear any previous buttons from the grid."""
-        print(len(self.button_objs))
-        for button in self.button_objs.values():
-            print(f"Forgetting button obj{button}")
+        # print(f"{len(self.button_objs)=}")
+        for key, button in self.button_objs.items():
+            # print(f"Forgetting button obj {button}, {key} ")
             button.grid_forget()
-        for thing in [self.enter_button, self.clear_button, self.enter_button]:
-            thing.grid_forget()
-            print(f"Forgetting thing {thing}")
+        # for thing in [self.enter_button, self.clear_button, self.help_button]:
+        #     thing.grid_forget()
+        #     print(f"Forgetting thing {thing}")
         for button in self.main_buttons:
-            print(f"Forgetting main button {button}")
+            # print(f"Forgetting main button {button}, {button.cget('text')}")
             button.grid_forget()
+        # print(f"{len(self.button_objs)=}")
 
         self.button_objs.clear()
+        # print(f"{len(self.button_objs)=}")
+        for label in self.main_labels:
+            # print(f"Forgetting label {label}")
+            label.grid_forget()
 
     def create_button_handler(self, text):  # keep in gui
         """Returns a function that calls
@@ -534,7 +562,7 @@ class CalculatorGUI(tk.Tk):
 
     def update_buttons(self):
         """ Update colors and fonts for the buttons. """
-        for k, v in self.button_objs.items():
+        for k, _ in self.button_objs.items():
             # Change the color of some of the buttons
             if self.button_objs[k].cget('text') in self.rpn.operator_2:
                 self.button_objs[k].config(bg=self.colors['op2'])
@@ -544,6 +572,7 @@ class CalculatorGUI(tk.Tk):
                 self.button_objs[k].config(bg=self.colors['number'])
             # Change font
             if self.button_objs[k].cget('text') in {'\u03c0', '\u03c4', '\u03c6'}:
+                # greek letters
                 self.button_objs[k].config(font=("Symbol", 14))
             else:
                 self.button_objs[k].config(font=("Lucida Sans Unicode", 14))
@@ -700,6 +729,6 @@ class CalculatorGUI(tk.Tk):
 
 
 if __name__ == "__main__":
-    rpn = RPN()  # Create an instance of the Calculator class
-    app = CalculatorGUI(rpn)  # Pass the calculator object to the GUI
+    rpn_calc = RPN()  # Create an instance of the Calculator class
+    app = CalculatorGUI(rpn_calc)  # Pass the calculator object to the GUI
     app.mainloop()

@@ -106,17 +106,30 @@ class RPN():
         elif operator == 'atan':
             return math.atan(operand)
         elif operator == '!':
-            try:
-                return math.factorial(math.floor(operand)) \
-                    * math.ceil(operand)**(operand - math.floor(operand))
-            #     return math.factorial(operand)
-            except ValueError:
-                if operand < 0:
-                    messagebox.showerror("Error",
-                                         "Cant run '!' on negative numbers.")
-                else:
-                    messagebox.showerror("Error",
-                                         f"Cant run {operator} on {operand}.")
+            if type(operand) == int:
+                return math.factorial(operand)
+            else:
+                return math.gamma(operand + 1)
+
+            # if operand > 100000:
+            #     messagebox.showerror("Error",
+            #                          f"{operand} is a too large integer for "
+            #                          +"'!'. Maximum is 100 000.")
+            # try:
+            #     return math.factorial(math.floor(operand)) \
+            #         * math.ceil(operand)**(operand - math.floor(operand))
+            # #     return math.factorial(operand)
+            # except ValueError:
+            #     if operand < 0:
+            #         messagebox.showerror("Error",
+            #                              "Cant run '!' on negative numbers.")
+            #     else:
+            #         messagebox.showerror("Error",
+            #                              f"Cant run {operator} on {operand}.")
+            # except OverflowError:
+            #     messagebox.showerror("Error",
+            #                          f"{operand} is a too large float for "
+            #                          +"'!'. Maximum is about 170.5.")
 
         elif operator == '=':  # Rounds last operand to an int
             return int(operand)

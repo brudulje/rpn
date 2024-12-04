@@ -11,14 +11,14 @@ class RPN():
     operator_2 = {'+', '-', '\u00d7',  # times
                   '/', '^', '\u00f7',  # int div
                   '%', 'n\u221a',  # nth root
-                  # 'E',
+                  'E', 'nCk',
                   '\u2295',  # circled pluss
                   }
     operator_1 = {'\u221a',  # root
-                  'sin', 'cos', 'tan',
-                  'asin', 'acos', 'atan',
+                  'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
+                  'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
                   'ln', 'log', 'lg2',
-                  '1/x', '!', '=', '2^x'}
+                  '1/x', '!', '=', '2^x', 'x^2', '\u2684'}  # dice5
     operator_0 = {'\u03c0', '\u03c4', '\u03c6', 'e', 'Rand'}  # pi, tau, phi, e
 
     def evaluate_two(self, expression):
@@ -35,37 +35,38 @@ class RPN():
             return None
         # Perform the operation based on the operator
         if operator == '+':
-            result = operand1 + operand2
+            return operand1 + operand2
         elif operator == '-':
-            result = operand1 - operand2
+            return operand1 - operand2
         elif operator == '\u00d7':  # times
-            result = operand1 * operand2
+            return operand1 * operand2
         elif operator == '/':
             if operand1 % operand2 == 0:
                 # Keeps the result an int if possible
-                result = operand1 // operand2
+                return operand1 // operand2
             else:
                 try:
-                    result = operand1 / operand2
+                    return operand1 / operand2
                 except ValueError:
                     messagebox.showerror("Error",
                                          "Division by zero is undefined.")
         elif operator == '^':
-            result = operand1 ** operand2
+            return operand1 ** operand2
         elif operator == '\u00f7':  # Division symbol for integer division
-            result = operand1 // operand2
+            return operand1 // operand2
         elif operator == '%':
-            result = operand1 % operand2
+            return operand1 % operand2
         elif operator == 'n\u221a':
-            result = operand1 ** (1/operand2)
+            return operand1 ** (1/operand2)
         elif operator == '\u2295':  # Circled pluss
-            result = math.sqrt(operand1**2 + operand2**2)
+            return math.sqrt(operand1**2 + operand2**2)
         elif operator == 'E':
             return operand1 * 10 ** operand2
+        elif operator == 'nCk':
+            return math.comb(operand1, operand2)
         else:
             messagebox.showerror("Error", f"Unknown 2operator {operator}.")
-
-        return result
+        return None
 
     def evaluate_one(self, expression):
         """Operate operators taking a single operand."""
@@ -82,7 +83,6 @@ class RPN():
             if operand < 0:
                 messagebox.showerror("Error",
                                      "Root of negative numbers not supported.")
-
             return math.sqrt(operand)
         elif operator == 'sin':
             return math.sin(operand)
@@ -133,14 +133,29 @@ class RPN():
 
         elif operator == '=':  # Rounds last operand to an int
             return int(operand)
-        # elif operator == 'x^2':  # Depricated
-        #     return operand ** 2
+        elif operator == 'x^2':  # Depricated  # Reintroduced
+            return operand ** 2
         elif operator == '2^x':
             return 2 ** operand
+        elif operator == '\u2684':  # dice5
+            return math.ceil(operand * random.random())
+        elif operator == 'sinh':
+            return math.sinh(operand)
+        elif operator == 'cosh':
+            return math.cosh(operand)
+        elif operator == 'tanh':
+            return math.tanh(operand)
+        elif operator == 'asinh':
+            return math.asinh(operand)
+        elif operator == 'acosh':
+            return math.acosh(operand)
+        elif operator == 'atanh':
+            return math.atanh(operand)
         else:
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
                                  f"Unknown 1operator {operator}.")
+        return None
 
     def evaluate_zero(self, text):
         # {'\u03c0', '\u03c4', 'e'}
@@ -159,7 +174,7 @@ class RPN():
             # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
                                  f"Unknown 0operator {text}.")
-            return None
+        return None
 
     def process_operator(self, operator, operand_count, eval_function=None):
         """
@@ -283,6 +298,7 @@ class CalculatorGUI(tk.Tk):
             '1/x': "Reciprocal operator. Returns the reciprocal (1 divided "
             + "by the number).",
             '2^x': "Raise 2 to the power of x.",
+            'x^2': "Square x.",
             '!': "Factorial function. Returns the factorial of a integer. "
             + "For floats, it returns the factorial of the integer part "
             + "times 1 + that integer raised to the fractional part. "
@@ -301,6 +317,9 @@ class CalculatorGUI(tk.Tk):
             '?': "This is the help button. Click this and another button "
             + "to get help on that other button.",
             '(-)': "Negative symbol for entering negative numbers.",
+            'hyp': "Toggle hyperbolic triginometric functions.",
+            'nCk': "How many ways you can choose k from n.",
+            '\u2684': "Trow an n-sided dice",
             'Clear': "Clears the input. \nIf no input, clears the stack."
             + "\nIf no stack, clears history.",
             'Enter': "Transfers your input number to the stack."
@@ -310,6 +329,7 @@ class CalculatorGUI(tk.Tk):
         self.help_mode = False
 
         self.sci_mode = 0  # Initially not in scientific mode
+        self.hyp_mode = 0  # Initailly not in hyperbola mode
 
         self.colors = {
             'digit': '#ade',  # close to 'lightblue',
@@ -329,7 +349,7 @@ class CalculatorGUI(tk.Tk):
 
         # settings
         self.settings_digits = 17
-        self.layout = 'small'  # 'small', 'wide'
+        self.layout = 'wide'  # 'small', 'wide'
 
         # Set layout
         self.create_button_layout(self.layout)
@@ -421,7 +441,7 @@ class CalculatorGUI(tk.Tk):
             self.geometry("330x360")
 
             self.buttons = [('\u221a', 3, 3, self.colors['op1']),  # root
-                            ('sci', 3, 4, '#ffa'),
+                            ('sci', 3, 4, self.colors['sci'][0]),
                             ('7', 4, 0, self.colors['digit']),
                             ('8', 4, 1, self.colors['digit']),
                             ('9', 4, 2, self.colors['digit']),
@@ -459,7 +479,7 @@ class CalculatorGUI(tk.Tk):
             self.help_button_width = 2
 
         elif layout == 'wide':
-            self.geometry("590x330")
+            self.geometry("650x330")
 
             # Wide layout (buttons rearranged for a wider view)
             self.buttons = [('7', 4, 4, self.colors['digit']),
@@ -503,7 +523,12 @@ class CalculatorGUI(tk.Tk):
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
                             ('atan', 7, 3, self.colors['op1']),
-                            ('\u2295', 4, 8, self.colors['op2'])
+                            ('\u2295', 4, 8, self.colors['op2']),
+                            ('hyp', 3, 9, self.colors['sci'][0]),
+                            ('\u2684', 4, 9, self.colors['op1']),  # dice
+                            ('x^2', 5, 9, self.colors['op1']),
+                            ('nCk', 6, 9, self.colors['op2']),
+                            ('E', 7, 9, self.colors['op2'])
                             ]
 
             # Set postion, size and shape for special buttons and fields
@@ -515,10 +540,10 @@ class CalculatorGUI(tk.Tk):
             self.help_button_width = 4
             self.entry_grid = (0, 0, 3, '')
             self.entry_width = 15
-            self.rpn.stack_label_grid = (0, 3, 6, '')
-            self.rpn.stack_label_width = 36
-            self.history_label_grid = (2, 0, 9, 'e')
-            self.history_label_width = 55
+            self.rpn.stack_label_grid = (0, 3, 7, 'w')
+            self.rpn.stack_label_width = 44
+            self.history_label_grid = (2, 0, 10, 'e')
+            self.history_label_width = 63
 
         else:
             print(f"Invalid layout {layout}")
@@ -667,6 +692,38 @@ class CalculatorGUI(tk.Tk):
         # Update sci button bg color
         self.button_objs['sci'].config(bg=self.colors['sci'][self.sci_mode])
 
+    def toggle_hyp_mode(self):  # keep in gui
+        """Toggle between scientific and normal mode."""
+        # There are 2 modes.
+        self.hyp_mode = (self.hyp_mode + 1) % 2  # Change to next mode
+        # self.sci_mode = not self.hyp_mode  # Toggle mode
+
+        hyp_layouts = [{'sin': 'sin',
+                        'cos': 'cos',
+                        'tan': 'tan',
+                        'asin': 'asin',
+                        'acos': 'acos',
+                        'atan': 'atan',
+                        },
+                       {'sin': 'sinh',
+                        'cos': 'cosh',
+                        'tan': 'tanh',
+                        'asin': 'asinh',
+                        'acos': 'acosh',
+                        'atan': 'atanh',
+                        }
+                       ]
+
+        # Change button labels to scientific mode and update handlers
+        for k, v in hyp_layouts[self.hyp_mode].items():
+            self.button_objs[k].config(text=v)
+            self.button_objs[k].config(command=self.create_button_handler(v))
+        # Update colors and fonts
+        self.update_buttons()
+
+        # Update hyp button bg color
+        self.button_objs['hyp'].config(bg=self.colors['sci'][self.hyp_mode])
+
     def on_button_click(self, button_text):
         """Handle button click."""
         # print(button_text)
@@ -679,6 +736,8 @@ class CalculatorGUI(tk.Tk):
         elif button_text == 'sci':
             # Toggle the sci mode when the "sci" button is clicked
             self.toggle_sci_mode()
+        elif button_text == 'hyp':
+            self.toggle_hyp_mode()
         elif button_text == "Enter":
             self.process_input()
         elif button_text == "Clear":

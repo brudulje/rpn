@@ -297,6 +297,7 @@ class CalculatorGUI(tk.Tk):
         self.help_mode = False
 
         self.sci_mode = 0  # Initially not in scientific mode
+
         self.colors = {
             'digit': '#ade',  # close to 'lightblue',
             'number': '#69b',  # slightly darker blue
@@ -312,8 +313,12 @@ class CalculatorGUI(tk.Tk):
         self.button_objs = {}
         self.main_buttons = []  # Trying to keep track of all buttons
         self.main_labels = []
-        # Set layout
+
+        # settings
+        self.settings_digits = 17
         self.layout = 'small'  # 'small', 'wide'
+
+        # Set layout
         self.create_button_layout(self.layout)
 
         # Menu
@@ -328,6 +333,24 @@ class CalculatorGUI(tk.Tk):
         settings_menu.add_command(label="Wide and nerdy",
                                   command=lambda: self.create_button_layout
                                   ('wide'))
+
+        # Create the 'Digits' setting submenu
+        digits_menu = tk.Menu(settings_menu, tearoff=0)
+        settings_menu.add_cascade(label="Show digits in stack",
+                                  menu=digits_menu)
+
+        # Define the valid choices for digits
+        valid_digits = [1, 2, 3, 5, 7, 11, 13, 17]
+
+        # Add the valid digits as menu items
+        for digit in valid_digits:
+            digits_menu.add_command(label=str(digit),
+                                    command=lambda digit=digit:
+                                        self.set_digits(digit))
+
+    def set_digits(self, digit: int = 17):
+        self.settings_digits = digit
+        self.update_display()
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout
@@ -711,7 +734,20 @@ class CalculatorGUI(tk.Tk):
     def update_display(self):
         """Update the stack display label."""
         # Update stack display
-        self.rpn.stack_label.config(text=f"Stack: {self.rpn.stack}")
+        # Pretty print stack
+        stack_string = "Stack: ["
+        # print(self.rpn.stack, type(self.rpn.stack))
+        for token in self.rpn.stack:
+            # print(token, type(token))
+            if type(token) == float:
+                stack_string += f"{token:.{self.settings_digits}f}, "
+            else:
+                # token should be type int
+                stack_string += str(token) + ", "
+        # stack_string = stack_string[:-2] + "]" # Remove last ",
+        stack_string += "]"
+        # self.rpn.stack_label.config(text=f"Stack: {self.rpn.stack}")
+        self.rpn.stack_label.config(text=stack_string)
         # Update stack display
         self.history_label.config(text=f"History: {self.history}")
 

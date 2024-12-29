@@ -40,6 +40,6 @@ This script is written using Python 3.8.8 and the modules
 - `math`
 - `tkinter`
 - `random`
-- `re` \
+- `re`
 
 all of which are part of the Python standard library.

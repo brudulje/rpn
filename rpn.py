@@ -419,53 +419,6 @@ class CalculatorGUI(tk.Tk):
         """Set up button layout based on the selected layout
         ('small' or 'wide')."""
 
-        # Entry field for RPN expression
-        self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
-                              width=25, borderwidth=1, relief="solid")
-        self.main_labels.append(self.entry)
-
-        # Show the stack
-        self.rpn.stack_label = tk.Label(self, text="Stack: []",
-                                        font=("Lucida Sans Unicode", 12),
-                                        width=30, height=1, anchor="e")
-        self.main_labels.append(self.rpn.stack_label)
-
-        # Show input history
-        self.history_label = tk.Label(self, text="History: []",
-                                      font=("Lucida Sans Unicode", 12),
-                                      width=30, height=1, anchor="e")
-        self.main_labels.append(self.history_label)
-
-        # "Clear" button to clear the input
-        self.clear_button = tk.Button(self, text="Clear",
-                                      font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1,
-                                      bg=self.colors["Clear"],
-                                      # command=self.clear,
-                                      command=lambda: self.on_button_click
-                                      ("Clear"),
-                                      )
-        self.main_buttons.append(self.clear_button)
-
-        # "Enter" button to add current value to the stack
-        self.enter_button = tk.Button(self, text="Enter",
-                                      font=("Lucida Sans Unicode", 14),
-                                      width=6, height=1,
-                                      bg=self.colors["Enter"],
-                                      # command=self.process_input,
-                                      command=lambda: self.on_button_click
-                                      ("Enter"),
-                                      )
-        self.main_buttons.append(self.enter_button)
-
-        # "Help" button to clear the input
-        self.help_button = tk.Button(self, text="?",
-                                     font=("Lucida Sans Unicode", 14),
-                                     width=2, height=1,
-                                     bg=self.colors['help'][0],
-                                     command=self.activate_help)
-        self.main_buttons.append(self.help_button)
-
         # self.layout = layout
         if layout == 'small':
             self.geometry("330x360")
@@ -512,75 +465,76 @@ class CalculatorGUI(tk.Tk):
             self.geometry("650x330")
 
             # Wide layout (buttons rearranged for a wider view)
-            self.buttons = [('7', 4, 4, self.colors['digit']),
+            self.buttons = [
+                            ('Rand', 3, 0, self.colors['number']),
+                            ('\u2684', 3, 1, self.colors['op1']),  # dice
+                            ('!', 3, 2, self.colors['op1']),
+                            ('1/x', 3, 3, self.colors['op1']),
+                            # 3, 4, to 3, 8, is the Enter Clear and ? buttons
+                            ('hyp', 3, 9, self.colors['sci'][0]),
+
+                            ('\u03c6', 4, 0, self.colors['number']),  # phi
+                            ('=', 4, 1, self.colors['op1']),
+                            ('x^2', 4, 2, self.colors['op1']),
+                            ('2^x', 4, 3, self.colors['op1']),
+                            ('7', 4, 4, self.colors['digit']),
                             ('8', 4, 5, self.colors['digit']),
                             ('9', 4, 6, self.colors['digit']),
                             ('/', 4, 7, self.colors['op2']),
-                            ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
-                            ('4', 5, 4, self.colors['digit']),
-                            ('5', 5, 5, self.colors['digit']),
-                            ('6', 5, 6, self.colors['digit']),
-                            ('\u00d7', 5, 7, self.colors['op2']),  # x
-                            ('%', 6, 8, self.colors['op2']),
-                            ('1', 6, 4, self.colors['digit']),
-                            ('2', 6, 5, self.colors['digit']),
-                            ('3', 6, 6, self.colors['digit']),
-                            ('-', 6, 7, self.colors['op2']),
                             ('\u00f7', 4, 8, self.colors['op2']),  # div
-                            ('0', 7, 5, self.colors['digit']),
-                            ('(-)', 7, 4, self.colors['digit']),
-                            ('.', 7, 6, self.colors['digit']),
-                            ('+', 7, 7, self.colors['op2']),
-                            ('^', 5, 8, self.colors['op2']),
                             ('\u221a', 4, 9, self.colors['op1']),  # root
-                            # Adding more buttons in wide view
-                            # ('n√', 4, 2, self.colors['op2']),
-                            ('Rand', 3, 0, self.colors['number']),
-                            ('=', 4, 1, self.colors['op1']),
-                            ('!', 3, 2, self.colors['op1']),
-                            ('1/x', 3, 3, self.colors['op1']),
-                            ('\u03c6', 4, 0, self.colors['number']),  # phi
-                            ('n\u221a', 5, 9, self.colors['op2']),  # nth root
-                            ('2^x', 4, 3, self.colors['op1']),
+
                             ('e', 5, 0, self.colors['number']),
                             ('ln', 5, 1, self.colors['op1']),
                             ('log', 5, 2, self.colors['op1']),
                             ('lg2', 5, 3, self.colors['op1']),
+                            ('4', 5, 4, self.colors['digit']),
+                            ('5', 5, 5, self.colors['digit']),
+                            ('6', 5, 6, self.colors['digit']),
+                            ('\u00d7', 5, 7, self.colors['op2']),  # x
+                            ('^', 5, 8, self.colors['op2']),
+                            ('n\u221a', 5, 9, self.colors['op2']),  # nth root
+
+                            ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
                             ('sin', 6, 1, self.colors['op1']),
                             ('cos', 6, 2, self.colors['op1']),
                             ('tan', 6, 3, self.colors['op1']),
+                            ('1', 6, 4, self.colors['digit']),
+                            ('2', 6, 5, self.colors['digit']),
+                            ('3', 6, 6, self.colors['digit']),
+                            ('-', 6, 7, self.colors['op2']),
+                            ('%', 6, 8, self.colors['op2']),
+                            ('nCk', 6, 9, self.colors['op2']),
+
                             ('\u03c4', 7, 0, self.colors['number']),  # tau
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
                             ('atan', 7, 3, self.colors['op1']),
+                            ('(-)', 7, 4, self.colors['digit']),
+                            ('0', 7, 5, self.colors['digit']),
+                            ('.', 7, 6, self.colors['digit']),
+                            ('+', 7, 7, self.colors['op2']),
                             ('\u2295', 7, 8, self.colors['op2']),
-                            ('hyp', 3, 9, self.colors['sci'][0]),
-                            ('\u2684', 3, 1, self.colors['op1']),  # dice
-                            ('x^2', 4, 2, self.colors['op1']),
-                            ('nCk', 6, 9, self.colors['op2']),
                             ('E', 7, 9, self.colors['op2'])
                             ]
 
             # Set postion, size and shape for special buttons and fields
-            self.clear_button_grid = (3, 6, 2, '')
-            self.clear_button_width = 10
-            self.enter_button_grid = (3, 4, 2, '')
-            self.enter_button_width = 10
-            self.help_button_grid = (3, 8, 1, '')
-            self.help_button_width = 4
             self.entry_grid = (0, 0, 3, '')
             self.entry_width = 15
             self.rpn.stack_label_grid = (0, 3, 7, 'w')
             self.rpn.stack_label_width = 44
             self.history_label_grid = (2, 0, 10, 'e')
             self.history_label_width = 63
+            self.enter_button_grid = (3, 4, 2, '')
+            self.enter_button_width = 10
+            self.clear_button_grid = (3, 6, 2, '')
+            self.clear_button_width = 10
+            self.help_button_grid = (3, 8, 1, '')
+            self.help_button_width = 4
 
         else:
             print(f"Invalid layout {layout}")
             return
-
-        # Update geometry etc
-        # self.update_idletasks()
 
         # Create the buttons for the number pad and operators with colors
         self.forget_grid()
@@ -595,46 +549,88 @@ class CalculatorGUI(tk.Tk):
         # Set correct font and colors on buttons
         self.update_buttons()
 
-        # Reposition, resize Clear, Enter, and Help buttons
-        self.clear_button.grid(row=self.clear_button_grid[0],
-                               column=self.clear_button_grid[1],
-                               columnspan=self.clear_button_grid[2],
-                               pady=5,
-                               sticky=self.clear_button_grid[3])
-        self.clear_button.config(width=self.clear_button_width)
-
-        self.enter_button.grid(row=self.enter_button_grid[0],
-                               column=self.enter_button_grid[1],
-                               columnspan=self.enter_button_grid[2],
-                               pady=5,
-                               sticky=self.enter_button_grid[3])
-        self.enter_button.config(width=self.enter_button_width)
-
-        self.help_button.grid(row=self.help_button_grid[0],
-                              column=self.help_button_grid[1],
-                              pady=5)
-        self.help_button.config(width=self.help_button_width)
-
-        # Reposition, resize Entry, Stack and History labels
+        # Entry field for RPN expression
+        self.entry = tk.Entry(self, font=("Lucida Sans Unicode", 14),
+                              borderwidth=1, relief="solid")
         self.entry.grid(row=self.entry_grid[0], column=self.entry_grid[1],
                         columnspan=self.entry_grid[2],
                         pady=5,
                         sticky=self.entry_grid[3])
         self.entry.config(width=self.entry_width)
+        self.main_labels.append(self.entry)
 
+        # Show the stack
+        self.rpn.stack_label = tk.Label(self, text="Stack: []",
+                                        font=("Lucida Sans Unicode", 12),
+                                        height=1, anchor="e")
         self.rpn.stack_label.grid(row=self.rpn.stack_label_grid[0],
                                   column=self.rpn.stack_label_grid[1],
                                   columnspan=self.rpn.stack_label_grid[2],
                                   pady=5,
                                   sticky=self.history_label_grid[3])
         self.rpn.stack_label.config(width=self.rpn.stack_label_width)
+        self.main_labels.append(self.rpn.stack_label)
 
+        # Show input history
+        self.history_label = tk.Label(self, text="History: []",
+                                      font=("Lucida Sans Unicode", 12),
+                                      height=1, anchor="e")
         self.history_label.grid(row=self.history_label_grid[0],
                                 column=self.history_label_grid[1],
                                 columnspan=self.history_label_grid[2],
                                 pady=5,
                                 sticky=self.history_label_grid[3])
         self.history_label.config(width=self.history_label_width)
+        self.main_labels.append(self.history_label)
+
+        # "Clear" button to clear the input
+        self.clear_button = tk.Button(self, text="Clear",
+                                      font=("Lucida Sans Unicode", 14),
+                                      height=1,
+                                      bg=self.colors["Clear"],
+                                      # command=self.clear,
+                                      command=lambda: self.on_button_click
+                                      ("Clear"),
+                                      )
+        self.clear_button.grid(row=self.clear_button_grid[0],
+                               column=self.clear_button_grid[1],
+                               columnspan=self.clear_button_grid[2],
+                               pady=5,
+                               sticky=self.clear_button_grid[3])
+        self.clear_button.config(width=self.clear_button_width)
+        self.main_buttons.append(self.clear_button)
+
+        # "Enter" button to add current value to the stack
+        self.enter_button = tk.Button(self, text="Enter",
+                                      font=("Lucida Sans Unicode", 14),
+                                      height=1,
+                                      bg=self.colors["Enter"],
+                                      # command=self.process_input,
+                                      command=lambda: self.on_button_click
+                                      ("Enter"),
+                                      )
+        self.enter_button.grid(row=self.enter_button_grid[0],
+                               column=self.enter_button_grid[1],
+                               columnspan=self.enter_button_grid[2],
+                               pady=5,
+                               sticky=self.enter_button_grid[3])
+        self.enter_button.config(width=self.enter_button_width)
+        self.main_buttons.append(self.enter_button)
+
+        # "Help" button to clear the input
+        self.help_button = tk.Button(self, text="?",
+                                     font=("Lucida Sans Unicode", 14),
+                                     height=1,
+                                     bg=self.colors['help'][0],
+                                     command=self.activate_help)
+        self.help_button.grid(row=self.help_button_grid[0],
+                              column=self.help_button_grid[1],
+                              pady=5)
+        self.help_button.config(width=self.help_button_width)
+        self.main_buttons.append(self.help_button)
+
+        # Update idsplay to keep stack, history visible
+        self.update_display()
 
     def forget_grid(self):  # keep in gui
         """Clear any previous buttons from the grid."""
@@ -837,24 +833,20 @@ class CalculatorGUI(tk.Tk):
             pass
 
     def update_display(self):
-        """Update the stack display label."""
+        """Update the stack and history display labels."""
         # Update stack display
         # Pretty print stack
         stack_string = "Stack: ["
-        # print(self.rpn.stack, type(self.rpn.stack))
         for idx, token in enumerate(self.rpn.stack):
-            # print(token, type(token))
             if type(token) == float:
                 stack_string += f"{token:.{self.settings_digits}g}"
             else:
                 # token should be type int
                 stack_string += str(token)
-            if idx +1 < len(self.rpn.stack):
+            if idx + 1 < len(self.rpn.stack):
                 # Add the comma only for the entries which are not the last
                 stack_string += ", "
-        # stack_string = stack_string[:-2] + "]" # Remove last ",
         stack_string += "]"
-        # self.rpn.stack_label.config(text=f"Stack: {self.rpn.stack}")
         self.rpn.stack_label.config(text=stack_string)
         # Update stack display
         self.history_label.config(text=f"History: {self.history}")

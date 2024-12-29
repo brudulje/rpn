@@ -252,76 +252,106 @@ class CalculatorGUI(tk.Tk):
 
         # Dictionary of help texts for each button
         self.help_texts = {  # keep in gui
-            '.': "Decimal point. Separates the whole number from the \
-                fraction.",
-            '0': "0; Zero, the first digit and the basis of positional \
-                notation.",
-            '1': "1; First and foremost. Number one.",
-            '2': "2; Never first, but close.",
-            '3': "3; First odd prime.",
+            '.': "Decimal point. \n"
+            + "Separates the whole number from the fraction.",
+            '0': "0; Zero, \n"
+            +"The first digit and the basis of positional notation.",
+            '1': "1; One. First and foremost. Number one.",
+            '2': "2; Two is never first, but close.",
+            '3': "3; Three. First odd prime.",
             '4': "4; Four in a row.",
             '5': "5; Five is a handful.",
             '6': "6; Six. First rectangular number.",
             '7': "7; Seven. An excellent choise.",
             '8': "8; Eight. The first digit in alphabetical order.",
             '9': "9; Nine. First odd square.",
-            'π': "Pi is the circumference of a circle divided by its "
-            + "diameter.",
-            '\u03c4': "Tau is the circumference of a circle divided by its "
-            + "radius.",
-            'e': "Euler's number (e) is a mathematical constant approximately "
-            + "equal to 2.71828.",
-            '\u03c6': "Phi is the golden ratio. 1 / phi = phi - 1.",
-            '+': "Addition operator. Adds two numbers.",
-            '-': "Subtraction operator. Subtracts the second number from the "
-            + "first.",
-            '\u00d7': "Multiplication operator. Multiplies two numbers.",
-            '/': "Division operator. Divides the first number by the second.",
-            '^': "Exponentiation operator. Raises the first number to the "
-            + "power of the second.",
-            '÷': "Integer division. Returns the integer part after division.",
-            '%': "Modulus operator. Returns the remainder of the division "
-            + "of two numbers.",
-            '√': "Square root operator. Returns the square root of a number.",
-            'sin': "Sine function. Returns the sine of an angle.",
-            'cos': "Cosine function. Returns the cosine of an angle.",
-            'tan': "Tangent function. Returns the tangent of an angle.",
-            'asin': "Inverse sine function. Returns the inverse of sin.",
-            'acos': "Inverse cosine function. Returns the inverse of cos.",
-            'atan': "Inverse tangent function. Returns the inverse of tan",
-            'ln': "Natural logarithm function. Returns the natural logarithm "
-            + "of a number.",
-            'lg2': "Base-2 logarithm function. Returns the logarithm of a "
-            + "number with base 2.",
-            'log': "Base-10 logarithm function. Returns the logarithm of a "
-            + "number with base 10.",
-            '1/x': "Reciprocal operator. Returns the reciprocal (1 divided "
-            + "by the number).",
+            'π': "Pi is the circumference of a circle \n"
+            + "divided by its diameter.",
+            '\u03c4': "Tau is the circumference of a circle \n"
+            + "divided by its radius.",
+            'e': "e is a mathematical constant, \n"
+            + "the base of the natural logarithm and exponential function.\n"
+            + "e is approximately equal to 2.718281828459045235360287471352.",
+            '\u03c6': "Phi is the golden ratio. \n"
+            + "1 / phi = phi - 1.",
+            '+': "Addition operator. \n"
+            + "Adds two numbers.",
+            '-': "Subtraction operator. \n"
+            + "Subtracts the second number from the first.",
+            '\u00d7': "Multiplication operator. \n"
+            + "Multiplies two numbers.",
+            '/': "Division operator. \n"
+            + "Divides the first number by the second.",
+            '^': "Exponentiation operator. \n"
+            + "Raises the first number to the power of the second.",
+            '÷': "Integer division. \n"
+            + "Returns the integer part after division.",
+            '%': "Modulus operator. \n"
+            + "Returns the remainder of the division of two numbers.",
+            '√': "Square root operator. \n"
+            + "Returns the square root of a number.",
+            'sin': "Sine function. \n"
+            + "Returns the sine of an angle.",
+            'cos': "Cosine function. \n"
+            + "Returns the cosine of an angle.",
+            'tan': "Tangent function. \n"
+            + "Returns the tangent of an angle.",
+            'asin': "Inverse sine function. \n"
+            + "Returns the inverse of sin.",
+            'acos': "Inverse cosine function. \n"
+            + "Returns the inverse of cos.",
+            'atan': "Inverse tangent function. \n"
+            + "Returns the inverse of tan",
+            'sinh': "Hyperbolic sine function. \n"
+            + "Returns the hyperbolic sine of an angle.",
+            'cosh': "Hyperbolic cosine function. \n"
+            + "Returns the hyperbolic cosine of an angle.",
+            'tanh': "Hyperbolic tangent function. \n"
+            + "Returns the hyperbolic tangent of an angle.",
+            'asinh': "Inverse hyperbolic sine function. \n"
+            + "Returns the inverse of sinh.",
+            'acosh': "Inverse hyperbolic cosine function. \n"
+            + "Returns the inverse of cosh.",
+            'atanh': "Inverse hyperbolic tangent function. \n"
+            + "Returns the inverse of tanh.",
+            'ln': "Natural logarithm function. \n"
+            + "Returns the natural logarithm of a number.",
+            'lg2': "Base-2 logarithm function. \n"
+            + "Returns the logarithm of a number with base 2.",
+            'log': "Base-10 logarithm function. \n"
+            + "Returns the logarithm of a number with base 10.",
+            '1/x': "Reciprocal operator. \n"
+            + "Returns the reciprocal (1 divided by the number).",
             '2^x': "Raise 2 to the power of x.",
             'x^2': "Square x.",
-            '!': "Factorial function. Returns the factorial of a integer. "
-            + "For floats, it returns the factorial of the integer part "
-            + "times 1 + that integer raised to the fractional part. "
-            + "Note: This is not the regular definition of factorials "
-            + "for non-integer numbers.",
-            '=': "'=' on an RPN? Yeah, this rounds the number to the nearest "
-            + "integer.",
+            '!': "Factorial function. \n"
+            + "Returns the factorial of a integer. \n"
+            + "For floats, it returns the \u0393(x+1), which is widely \n"
+            + "accepted as the factorial of non-integer numbers.",
+            '=': "'=' on an RPN? \n"
+            + "Yeah, this truncates the number i.e. rounds towards zero.",
             'Rand': "Generates a random number between 0 and 1.",
-            'n√': "Nth root operator. Returns the nth root of the first "
-            + "number.",
-            '\u2295': "Circled Plus operator. Returns the Euclidean norm "
-            + "(distance) between two numbers. Equivalent to "
-            + "['a', '2', '^', 'b', '2', '^', '+', '√']",
-            'E': "Scientific notation. x, y, E is x * 10^y.",
+            'n√': "Nth root operator. \n"
+            + "Returns the nth root of the first number.",
+            '\u2295': "Root Sum Square operator. \n"
+            + "Returns the Euclidean norm (distance) between two numbers. \n"
+            + "Equivalent to ['a', 'x^2', 'b', 'x^2', '+', '√']",
+            'E': "Scientific notation. \n"
+            + "x, y, E is x * 10^y.",
             'sci': "Toggle various scientific functions.",
-            '?': "This is the help button. Click this and another button "
-            + "to get help on that other button.",
+            '?': "This is the help button. \n"
+            + "Click this and another button to get help on that other button.",
             '(-)': "Negative symbol for entering negative numbers.",
-            'hyp': "Toggle hyperbolic triginometric functions.",
+            'hyp': "Toggle hyperbolic trigonometric functions.",
             'nCk': "How many ways you can choose k from n.",
-            '\u2684': "Trow an n-sided dice",
-            'Clear': "Clears the input. \nIf no input, clears the stack."
-            + "\nIf no stack, clears history.",
+            '\u2684': "Trow an n-sided dice. \n"
+            + "If n is not integer, the last side of the \n"
+            + "dice is a little smaller than the others. \n"
+            + "A \u03c4-sided dice will sometimes give 7.",
+            'Clear': "Clears the input. \n"
+            + "If no input, clears the stack.\n"
+            + "If no stack, clears history, \n"
+            + "If no history, takes a nap.",
             'Enter': "Transfers your input number to the stack."
         }
 

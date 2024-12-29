@@ -842,13 +842,16 @@ class CalculatorGUI(tk.Tk):
         # Pretty print stack
         stack_string = "Stack: ["
         # print(self.rpn.stack, type(self.rpn.stack))
-        for token in self.rpn.stack:
+        for idx, token in enumerate(self.rpn.stack):
             # print(token, type(token))
             if type(token) == float:
-                stack_string += f"{token:.{self.settings_digits}f}, "
+                stack_string += f"{token:.{self.settings_digits}g}"
             else:
                 # token should be type int
-                stack_string += str(token) + ", "
+                stack_string += str(token)
+            if idx +1 < len(self.rpn.stack):
+                # Add the comma only for the entries which are not the last
+                stack_string += ", "
         # stack_string = stack_string[:-2] + "]" # Remove last ",
         stack_string += "]"
         # self.rpn.stack_label.config(text=f"Stack: {self.rpn.stack}")

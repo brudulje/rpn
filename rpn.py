@@ -348,7 +348,7 @@ class CalculatorGUI(tk.Tk):
             + "If n is not integer, the last side of the \n"
             + "dice is a little smaller than the others. \n"
             + "A \u03c4-sided dice will sometimes give 7.",
-            'Clear': "Clears the input. \n"
+            'Clear': "Clears the input, one character a a time. \n"
             + "If no input, clears the stack.\n"
             + "If no stack, clears history, \n"
             + "If no history, takes a nap.",
@@ -819,9 +819,11 @@ class CalculatorGUI(tk.Tk):
 
     def clear(self):
         """Clear various variables when the Clear button is pressed."""
-        if self.entry.get().strip():
-            # There is something in the entry field; clear this
+        text = self.entry.get().strip()
+        if text:
+            # There is something in the entry field; clear this piecewise
             self.entry.delete(0, tk.END)
+            self.entry.insert(0, text[:-1])
         elif self.rpn.stack:
             # Entry field is empty, stack has something in it
             self.rpn.stack.clear()
@@ -831,6 +833,7 @@ class CalculatorGUI(tk.Tk):
             self.history.clear()
             self.update_display()
         else:
+            # Nothing more to clear
             pass
 
     def update_display(self):

@@ -496,21 +496,21 @@ class CalculatorGUI(tk.Tk):
                             ('2', 6, 5, self.colors['digit']),
                             ('3', 6, 6, self.colors['digit']),
                             ('-', 6, 7, self.colors['op2']),
-                            ('\u00f7', 7, 8, self.colors['op2']),  # div
+                            ('\u00f7', 4, 8, self.colors['op2']),  # div
                             ('0', 7, 5, self.colors['digit']),
                             ('(-)', 7, 4, self.colors['digit']),
                             ('.', 7, 6, self.colors['digit']),
                             ('+', 7, 7, self.colors['op2']),
                             ('^', 5, 8, self.colors['op2']),
-                            ('\u221a', 4, 1, self.colors['op1']),  # root
+                            ('\u221a', 4, 9, self.colors['op1']),  # root
                             # Adding more buttons in wide view
                             # ('n√', 4, 2, self.colors['op2']),
                             ('Rand', 3, 0, self.colors['number']),
-                            ('=', 3, 1, self.colors['op1']),
+                            ('=', 4, 1, self.colors['op1']),
                             ('!', 3, 2, self.colors['op1']),
                             ('1/x', 3, 3, self.colors['op1']),
                             ('\u03c6', 4, 0, self.colors['number']),  # phi
-                            ('n\u221a', 4, 2, self.colors['op2']),  # nth root
+                            ('n\u221a', 5, 9, self.colors['op2']),  # nth root
                             ('2^x', 4, 3, self.colors['op1']),
                             ('e', 5, 0, self.colors['number']),
                             ('ln', 5, 1, self.colors['op1']),
@@ -523,10 +523,10 @@ class CalculatorGUI(tk.Tk):
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
                             ('atan', 7, 3, self.colors['op1']),
-                            ('\u2295', 4, 8, self.colors['op2']),
+                            ('\u2295', 7, 8, self.colors['op2']),
                             ('hyp', 3, 9, self.colors['sci'][0]),
-                            ('\u2684', 4, 9, self.colors['op1']),  # dice
-                            ('x^2', 5, 9, self.colors['op1']),
+                            ('\u2684', 3, 1, self.colors['op1']),  # dice
+                            ('x^2', 4, 2, self.colors['op1']),
                             ('nCk', 6, 9, self.colors['op2']),
                             ('E', 7, 9, self.colors['op2'])
                             ]

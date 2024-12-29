@@ -396,6 +396,9 @@ class CalculatorGUI(tk.Tk):
         settings_menu.add_command(label="Wide and nerdy",
                                   command=lambda: self.create_button_layout
                                   ('wide'))
+        settings_menu.add_command(label="Tall order",
+                                  command=lambda: self.create_button_layout
+                                  ('tall'))
 
         # Create the 'Digits' setting submenu
         digits_menu = tk.Menu(settings_menu, tearoff=0)
@@ -417,7 +420,7 @@ class CalculatorGUI(tk.Tk):
 
     def create_button_layout(self, layout):
         """Set up button layout based on the selected layout
-        ('small' or 'wide')."""
+        ('small', 'wide', or 'tall')."""
 
         # self.layout = layout
         if layout == 'small':
@@ -454,9 +457,9 @@ class CalculatorGUI(tk.Tk):
             self.rpn.stack_label_width = 30
             self.history_label_grid = (2, 0, 5, '')
             self.history_label_width = 30
-            self.clear_button_grid = (3, 0, 2, 'w')
+            self.clear_button_grid = (3, 1, 2, 'e')
             self.clear_button_width = 6
-            self.enter_button_grid = (3, 1, 2, 'e')
+            self.enter_button_grid = (3, 0, 2, 'w')
             self.enter_button_width = 6
             self.help_button_grid = (3, 1, 1, '')
             self.help_button_width = 2
@@ -530,6 +533,80 @@ class CalculatorGUI(tk.Tk):
             self.clear_button_grid = (3, 6, 2, '')
             self.clear_button_width = 10
             self.help_button_grid = (3, 8, 1, '')
+            self.help_button_width = 4
+
+        elif layout == 'tall':
+            self.geometry("330x620")
+
+            # Wide layout (buttons rearranged for a wider view)
+            self.buttons = [('Rand', 3, 0, self.colors['number']),
+                            ('\u2684', 3, 1, self.colors['op1']),  # dice
+                            ('!', 3, 2, self.colors['op1']),
+                            ('1/x', 3, 3, self.colors['op1']),
+
+                            ('\u03c6', 4, 0, self.colors['number']),  # phi
+                            ('=', 4, 1, self.colors['op1']),
+                            ('x^2', 4, 2, self.colors['op1']),
+                            ('2^x', 4, 3, self.colors['op1']),
+                            ('\u221a', 4, 4, self.colors['op1']),  # root
+
+                            ('e', 5, 0, self.colors['number']),
+                            ('ln', 5, 1, self.colors['op1']),
+                            ('log', 5, 2, self.colors['op1']),
+                            ('lg2', 5, 3, self.colors['op1']),
+                            ('n\u221a', 5, 4, self.colors['op2']),  # nth root
+
+                            ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
+                            ('sin', 6, 1, self.colors['op1']),
+                            ('cos', 6, 2, self.colors['op1']),
+                            ('tan', 6, 3, self.colors['op1']),
+                            ('nCk', 6, 4, self.colors['op2']),
+
+                            ('\u03c4', 7, 0, self.colors['number']),  # tau
+                            ('asin', 7, 1, self.colors['op1']),
+                            ('acos', 7, 2, self.colors['op1']),
+                            ('atan', 7, 3, self.colors['op1']),
+                            ('E', 7, 4, self.colors['op2']),
+
+                            ('hyp', 8, 4, self.colors['sci'][0]),
+
+                            ('7', 9, 0, self.colors['digit']),
+                            ('8', 9, 1, self.colors['digit']),
+                            ('9', 9, 2, self.colors['digit']),
+                            ('/', 9, 3, self.colors['op2']),
+                            ('\u00f7', 9, 4, self.colors['op2']),  # div
+
+                            ('4', 10, 0, self.colors['digit']),
+                            ('5', 10, 1, self.colors['digit']),
+                            ('6', 10, 2, self.colors['digit']),
+                            ('\u00d7', 10, 3, self.colors['op2']),  # x
+                            ('^', 10, 4, self.colors['op2']),
+
+                            ('1', 11, 0, self.colors['digit']),
+                            ('2', 11, 1, self.colors['digit']),
+                            ('3', 11, 2, self.colors['digit']),
+                            ('-', 11, 3, self.colors['op2']),
+                            ('%', 11, 4, self.colors['op2']),
+
+                            ('(-)', 12, 0, self.colors['digit']),
+                            ('0', 12, 1, self.colors['digit']),
+                            ('.', 12, 2, self.colors['digit']),
+                            ('+', 12, 3, self.colors['op2']),
+                            ('\u2295', 12, 4, self.colors['op2']),
+                            ]
+
+            self.entry_grid = (0, 0, 5, '')
+            self.entry_width = 25
+            self.rpn.stack_label_grid = (1, 0, 5, '')
+            self.rpn.stack_label_width = 30
+            self.history_label_grid = (2, 0, 5, '')
+            self.history_label_width = 30
+
+            self.enter_button_grid = (8, 0, 2, '')
+            self.enter_button_width = 10
+            self.clear_button_grid = (8, 2, 2, '')
+            self.clear_button_width = 10
+            self.help_button_grid = (3, 4, 1, '')
             self.help_button_width = 4
 
         else:

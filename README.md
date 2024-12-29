@@ -37,8 +37,9 @@ and how to replicate it. I'll try to fix it.
 # version
 
 This script is written using Python 3.8.8 and the modules
-- math
-- tkinter
-- random
-- re \
+- `math`
+- `tkinter`
+- `random`
+- `re` \
+
 all of which are part of the Python standard library.

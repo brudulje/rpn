@@ -17,8 +17,28 @@ offered by paranthesis.
 1 -25 / \
 and the answer is -0.04
 
+The opposite of Reverse Polish Notation is Polish Notation, where the operator
+is written before the operands. Many programmers will recognise this as the
+above calculation can be written as div(1, sub(2, mult(3, add(4, 5)))).
+
 # Usage
 
 `> python rpn.py`
 
 should open the graphical user interface.
+
+It is also possible to run the rpn.py file from an IDE.
+
+# bug? Hwat bug?
+
+If you find a bug in my code, please make an issue. Describe what goes wrong
+and how to replicate it. I'll try to fix it.
+
+# version
+
+This script is written using Python 3.8.8 and the modules
+- math
+- tkinter
+- random
+- re \
+all of which are part of the Python standard library.

@@ -29,41 +29,90 @@ class RPN():
             operator = expression[2]  # Operator
             _ = float(operand1)
             _ = float(operand2)
-        except (ValueError, TypeError, IndexError):
-            messagebox.showerror("Error",
-                                 f"Don't know what to do with {expression}.")
+        except ValueError as e:
+            # Does this ever happen?
+            messagebox.showerror("ValueError",
+                                 f"Don't know what to do with {expression}."
+                                 + "Boink."
+                                 + f"Also: {str(e)}")
+            return None
+        except TypeError as e:
+            # Does this ever happen?
+            messagebox.showerror("TypeError",
+                                 f"Don't know what to do with {expression}."
+                                 + "Input is the wrong type."
+                                 + f"Also: {str(e)}")
+            return None
+        except IndexError as e:
+            messagebox.showerror("IndexError",
+                                 f"Don't know what to do with {expression}.\n"
+                                 + "There are probably too few operands."
+                                 + f"Also: {str(e)}")
             return None
         # Perform the operation based on the operator
         if operator == '+':
-            return operand1 + operand2
+            try:
+                return operand1 + operand2
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", str(e))
         elif operator == '-':
             return operand1 - operand2
         elif operator == '\u00d7':  # times
-            return operand1 * operand2
-        elif operator == '/':
-            if operand1 % operand2 == 0:
+            try:
+                return operand1 * operand2
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", str(e))
+        elif operator == '/' or operator == '\u00f7':
+            # \u00f7 is division symbol for integer division
+            if operand2 == 0:
+                messagebox.showerror("Error",
+                                     "Division by zero is undefined.")
+            elif operand1 % operand2 == 0 or operator == '\u00f7':
                 # Keeps the result an int if possible
                 return operand1 // operand2
             else:
-                try:
-                    return operand1 / operand2
-                except ValueError:
-                    messagebox.showerror("Error",
-                                         "Division by zero is undefined.")
+                return operand1 / operand2
+
         elif operator == '^':
-            return operand1 ** operand2
-        elif operator == '\u00f7':  # Division symbol for integer division
-            return operand1 // operand2
+            try:
+                return operand1 ** operand2
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", str(e))
+
+        # elif operator == '\u00f7':  # Division symbol for integer division
+        #     if operand2 == 0:
+        #         messagebox.showerror("Error",
+        #                              "Division by zero is undefined.")
+        #     else:
+        #         return operand1 // operand2
         elif operator == '%':
+            # does not work for o2 == 0
             return operand1 % operand2
         elif operator == 'n\u221a':
-            return operand1 ** (1/operand2)
+            if operand1 < 0:
+                messagebox.showerror("Error",
+                                     "Root of negative numbers not supported.")
+                return None
+            else:
+                return operand1 ** (1/operand2)
         elif operator == '\u2295':  # Circled pluss
-            return math.sqrt(operand1**2 + operand2**2)
+            try:
+                return math.sqrt(operand1**2 + operand2**2)
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", f"{operand1}, {operand2}"
+                                     + f"{operator} does not work" + str(e))
         elif operator == 'E':
-            return operand1 * 10 ** operand2
+            try:
+                return operand1 * 10 ** operand2
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", f"{operand1}, {operand2}"
+                                     + f"{operator} does not work", str(e))
         elif operator == 'nCk':
-            return math.comb(operand1, operand2)
+            try:
+                return math.comb(operand1, operand2)
+            except TypeError as e:
+                messagebox.showerror("TypeError", f"{operand1}, {operand2}"
+                                     + f"{operator} does not work", str(e))
         else:
             messagebox.showerror("Error", f"Unknown 2operator {operator}.")
         return None
@@ -75,7 +124,7 @@ class RPN():
             operand = expression[0]
             operator = expression[1]
         except IndexError:
-            messagebox.showerror("Error",
+            messagebox.showerror("IndexError",
                                  f"Too few arguments to {expression}.")
             return None
 
@@ -83,7 +132,9 @@ class RPN():
             if operand < 0:
                 messagebox.showerror("Error",
                                      "Root of negative numbers not supported.")
-            return math.sqrt(operand)
+                return None
+            else:
+                return math.sqrt(operand)
         elif operator == 'sin':
             return math.sin(operand)
         elif operator == 'cos':
@@ -134,9 +185,15 @@ class RPN():
         elif operator == '=':  # Rounds last operand to an int
             return int(operand)
         elif operator == 'x^2':  # Depricated  # Reintroduced
-            return operand ** 2
+            try:
+                return operand ** 2
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", str(e))
         elif operator == '2^x':
-            return 2 ** operand
+            try:
+                return 2 ** operand
+            except OverflowError as e:
+                messagebox.showerror("OverflowError", str(e))
         elif operator == '\u2684':  # dice5
             return math.ceil(operand * random.random())
         elif operator == 'sinh':
@@ -206,7 +263,8 @@ class RPN():
                 value = float(text)
             self.stack.append(value)
         except ValueError:
-            messagebox.showerror("Error", f"Invalid number: {text}")
+            messagebox.showerror("Error", "Invalid input. \n"
+                                 + f"I don't think '{text}'kj is a number.")
 
     def process_token(self, text):
         """Process token input to stack.
@@ -379,7 +437,7 @@ class CalculatorGUI(tk.Tk):
 
         # settings
         self.settings_digits = 17
-        self.layout = 'wide'  # 'small', 'wide'
+        self.layout = 'small'  # 'small', 'wide', 'tall'
 
         # Set layout
         self.create_button_layout(self.layout)
@@ -396,7 +454,7 @@ class CalculatorGUI(tk.Tk):
         settings_menu.add_command(label="Wide and nerdy",
                                   command=lambda: self.create_button_layout
                                   ('wide'))
-        settings_menu.add_command(label="Tall order",
+        settings_menu.add_command(label="A tall order",
                                   command=lambda: self.create_button_layout
                                   ('tall'))
 

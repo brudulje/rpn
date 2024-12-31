@@ -3,7 +3,6 @@ from tkinter import messagebox
 import math
 import random
 import re
-# import time
 
 
 class RPN():
@@ -23,31 +22,24 @@ class RPN():
 
     def evaluate_two(self, expression):
         """Operate operators taking two operands."""
+
         try:
             operand1 = expression[0]
             operand2 = expression[1]
             operator = expression[2]  # Operator
-            _ = float(operand1)
-            _ = float(operand2)
+            # _ = float(operand1)
+            # _ = float(operand2)
         except ValueError as e:
             # Does this ever happen?
-            messagebox.showerror("ValueError",
-                                 f"Don't know what to do with {expression}."
-                                 + "Boink."
-                                 + f"Also: {str(e)}")
+            messagebox.showerror("ValueError", f"{str(e)}")
             return None
         except TypeError as e:
             # Does this ever happen?
-            messagebox.showerror("TypeError",
-                                 f"Don't know what to do with {expression}."
-                                 + "Input is the wrong type."
-                                 + f"Also: {str(e)}")
+            messagebox.showerror("TypeError", f"{str(e)}")
             return None
-        except IndexError as e:
+        except IndexError:
             messagebox.showerror("IndexError",
-                                 f"Don't know what to do with {expression}.\n"
-                                 + "There are probably too few operands."
-                                 + f"Also: {str(e)}")
+                                 f"Too few operands to {expression}.")
             return None
         # Perform the operation based on the operator
         if operator == '+':
@@ -72,21 +64,12 @@ class RPN():
                 return operand1 // operand2
             else:
                 return operand1 / operand2
-
         elif operator == '^':
             try:
                 return operand1 ** operand2
             except OverflowError as e:
                 messagebox.showerror("OverflowError", str(e))
-
-        # elif operator == '\u00f7':  # Division symbol for integer division
-        #     if operand2 == 0:
-        #         messagebox.showerror("Error",
-        #                              "Division by zero is undefined.")
-        #     else:
-        #         return operand1 // operand2
         elif operator == '%':
-            # does not work for o2 == 0
             return operand1 % operand2
         elif operator == 'n\u221a':
             if operand1 < 0:
@@ -99,20 +82,23 @@ class RPN():
             try:
                 return math.sqrt(operand1**2 + operand2**2)
             except OverflowError as e:
-                messagebox.showerror("OverflowError", f"{operand1}, {operand2}"
-                                     + f"{operator} does not work" + str(e))
+                messagebox.showerror("OverflowError",
+                                     f"{operand1}, {operand2}, {operator} "
+                                     + "does not work", str(e))
         elif operator == 'E':
             try:
                 return operand1 * 10 ** operand2
             except OverflowError as e:
-                messagebox.showerror("OverflowError", f"{operand1}, {operand2}"
-                                     + f"{operator} does not work", str(e))
+                messagebox.showerror("OverflowError",
+                                     f"{operand1}, {operand2}, {operator} "
+                                     + "does not work", str(e))
         elif operator == 'nCk':
             try:
                 return math.comb(operand1, operand2)
             except TypeError as e:
-                messagebox.showerror("TypeError", f"{operand1}, {operand2}"
-                                     + f"{operator} does not work", str(e))
+                messagebox.showerror("TypeError",
+                                     f"{operand1}, {operand2}, {operator} "
+                                     + "does not work", str(e))
         else:
             messagebox.showerror("Error", f"Unknown 2operator {operator}.")
         return None
@@ -161,27 +147,6 @@ class RPN():
                 return math.factorial(operand)
             else:
                 return math.gamma(operand + 1)
-
-            # if operand > 100000:
-            #     messagebox.showerror("Error",
-            #                          f"{operand} is a too large integer for "
-            #                          +"'!'. Maximum is 100 000.")
-            # try:
-            #     return math.factorial(math.floor(operand)) \
-            #         * math.ceil(operand)**(operand - math.floor(operand))
-            # #     return math.factorial(operand)
-            # except ValueError:
-            #     if operand < 0:
-            #         messagebox.showerror("Error",
-            #                              "Cant run '!' on negative numbers.")
-            #     else:
-            #         messagebox.showerror("Error",
-            #                              f"Cant run {operator} on {operand}.")
-            # except OverflowError:
-            #     messagebox.showerror("Error",
-            #                          f"{operand} is a too large float for "
-            #                          +"'!'. Maximum is about 170.5.")
-
         elif operator == '=':  # Rounds last operand to an int
             return int(operand)
         elif operator == 'x^2':  # Depricated  # Reintroduced
@@ -209,13 +174,12 @@ class RPN():
         elif operator == 'atanh':
             return math.atanh(operand)
         else:
-            # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
                                  f"Unknown 1operator {operator}.")
         return None
 
     def evaluate_zero(self, text):
-        # {'\u03c0', '\u03c4', 'e'}
+        # {'Rand', '\u03c0', '\u03c4', 'e', '\u03c6}
         text = text[0]
         if text == '\u03c0':  # pi
             return math.pi
@@ -228,7 +192,6 @@ class RPN():
         elif text == 'Rand':
             return random.random()
         else:
-            # raise ValueError(f"Unknown operator {operator}.")
             messagebox.showerror("Error",
                                  f"Unknown 0operator {text}.")
         return None
@@ -241,7 +204,9 @@ class RPN():
         self.stack.append(operator)
 
         if eval_function:
+            # This is where thing might take time
             result = eval_function(self.stack[-operand_count:])
+
             if result is not None:
                 # Remove the operands from the stack if calculation is good
                 self.stack = self.stack[:-operand_count]
@@ -256,15 +221,15 @@ class RPN():
         """
         # print("process_number got ", text)
         try:
-            # Try to convert to integer or float
             if "." not in text:
                 value = int(text)
             else:
                 value = float(text)
             self.stack.append(value)
         except ValueError:
-            messagebox.showerror("Error", "Invalid input. \n"
-                                 + f"I don't think '{text}'kj is a number.")
+            messagebox.showerror("ValueError",
+                                 "Invalid input. \n"
+                                 + f"I don't think '{text}' is a number.")
 
     def process_token(self, text):
         """Process token input to stack.
@@ -291,13 +256,14 @@ class RPN():
 class CalculatorGUI(tk.Tk):
     def __init__(self, rpn):
         super().__init__()
+        self.rpn = rpn
         self.title("RPN Calculator")
         self.geometry("330x360")
-        self.rpn = rpn
         self.history = []  # List of input
 
         self.operators = \
             self.rpn.operator_0 | self.rpn.operator_1 | self.rpn.operator_2
+
         # Regex magic to allow operators to be entered together with the
         # last number before the operator
         self.sorted_operators = sorted(self.operators, key=len, reverse=True)
@@ -313,7 +279,7 @@ class CalculatorGUI(tk.Tk):
             '.': "Decimal point. \n"
             + "Separates the whole number from the fraction.",
             '0': "0; Zero, \n"
-            +"The first digit and the basis of positional notation.",
+            + "The first digit and the basis of positional notation.",
             '1': "1; One. First and foremost. Number one.",
             '2': "2; Two is never first, but close.",
             '3': "3; Three. First odd prime.",
@@ -398,7 +364,7 @@ class CalculatorGUI(tk.Tk):
             + "x, y, E is x * 10^y.",
             'sci': "Toggle various scientific functions.",
             '?': "This is the help button. \n"
-            + "Click this and another button to get help on that other button.",
+            + "Click '?' and another button to get help on that other button.",
             '(-)': "Negative symbol for entering negative numbers.",
             'hyp': "Toggle hyperbolic trigonometric functions.",
             'nCk': "How many ways you can choose k from n.",
@@ -406,16 +372,14 @@ class CalculatorGUI(tk.Tk):
             + "If n is not integer, the last side of the \n"
             + "dice is a little smaller than the others. \n"
             + "A \u03c4-sided dice will sometimes give 7.",
-            'Clear': "Clears the input, one character a a time. \n"
+            'Clear': "Clears the input, one character at a time. \n"
             + "If no input, clears the stack.\n"
             + "If no stack, clears history, \n"
             + "If no history, takes a nap.",
             'Enter': "Transfers your input number to the stack."
         }
 
-        # To track if help mode is active
-        self.help_mode = False
-
+        self.help_mode = False  # Initially not in help mode
         self.sci_mode = 0  # Initially not in scientific mode
         self.hyp_mode = 0  # Initailly not in hyperbola mode
 
@@ -426,9 +390,8 @@ class CalculatorGUI(tk.Tk):
             'op2': '#6b6',  # slightly darker green
             'Clear': 'lightgray',
             'Enter': 'darkgray',
-            # '?': '#6b6',
-            'sci': ['#ffa', '#fd5', '#fa0'],
-            'help': ['#a66', '#a00']
+            'sci': ['#ffa', '#fd5', '#fa0'],  # yellows/orange
+            'help': ['#a66', '#a00']  # reds
         }
 
         self.button_objs = {}
@@ -437,10 +400,10 @@ class CalculatorGUI(tk.Tk):
 
         # settings
         self.settings_digits = 17
-        self.layout = 'small'  # 'small', 'wide', 'tall'
+        self.settings_layout = 'small'  # 'small', 'wide', 'tall'
 
         # Set layout
-        self.create_button_layout(self.layout)
+        self.create_button_layout(self.settings_layout)
 
         # Menu
         menubar = tk.Menu()
@@ -476,12 +439,11 @@ class CalculatorGUI(tk.Tk):
         self.settings_digits = digit
         self.update_display()
 
-    def create_button_layout(self, layout):
+    def create_button_layout(self, settings_layout):
         """Set up button layout based on the selected layout
         ('small', 'wide', or 'tall')."""
 
-        # self.layout = layout
-        if layout == 'small':
+        if settings_layout == 'small':
             self.geometry("330x360")
 
             self.buttons = [('\u221a', 3, 3, self.colors['op1']),  # root
@@ -522,18 +484,16 @@ class CalculatorGUI(tk.Tk):
             self.help_button_grid = (3, 1, 1, '')
             self.help_button_width = 2
 
-        elif layout == 'wide':
+        elif settings_layout == 'wide':
             self.geometry("650x330")
 
             # Wide layout (buttons rearranged for a wider view)
-            self.buttons = [
-                            ('Rand', 3, 0, self.colors['number']),
+            self.buttons = [('Rand', 3, 0, self.colors['number']),
                             ('\u2684', 3, 1, self.colors['op1']),  # dice
                             ('!', 3, 2, self.colors['op1']),
                             ('1/x', 3, 3, self.colors['op1']),
                             # 3, 4, to 3, 8, is the Enter Clear and ? buttons
                             ('hyp', 3, 9, self.colors['sci'][0]),
-
                             ('\u03c6', 4, 0, self.colors['number']),  # phi
                             ('=', 4, 1, self.colors['op1']),
                             ('x^2', 4, 2, self.colors['op1']),
@@ -544,7 +504,6 @@ class CalculatorGUI(tk.Tk):
                             ('/', 4, 7, self.colors['op2']),
                             ('\u00f7', 4, 8, self.colors['op2']),  # div
                             ('\u221a', 4, 9, self.colors['op1']),  # root
-
                             ('e', 5, 0, self.colors['number']),
                             ('ln', 5, 1, self.colors['op1']),
                             ('log', 5, 2, self.colors['op1']),
@@ -555,7 +514,6 @@ class CalculatorGUI(tk.Tk):
                             ('\u00d7', 5, 7, self.colors['op2']),  # x
                             ('^', 5, 8, self.colors['op2']),
                             ('n\u221a', 5, 9, self.colors['op2']),  # nth root
-
                             ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
                             ('sin', 6, 1, self.colors['op1']),
                             ('cos', 6, 2, self.colors['op1']),
@@ -566,7 +524,6 @@ class CalculatorGUI(tk.Tk):
                             ('-', 6, 7, self.colors['op2']),
                             ('%', 6, 8, self.colors['op2']),
                             ('nCk', 6, 9, self.colors['op2']),
-
                             ('\u03c4', 7, 0, self.colors['number']),  # tau
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
@@ -593,7 +550,7 @@ class CalculatorGUI(tk.Tk):
             self.help_button_grid = (3, 8, 1, '')
             self.help_button_width = 4
 
-        elif layout == 'tall':
+        elif settings_layout == 'tall':
             self.geometry("330x620")
 
             # Wide layout (buttons rearranged for a wider view)
@@ -601,51 +558,42 @@ class CalculatorGUI(tk.Tk):
                             ('\u2684', 3, 1, self.colors['op1']),  # dice
                             ('!', 3, 2, self.colors['op1']),
                             ('1/x', 3, 3, self.colors['op1']),
-
                             ('\u03c6', 4, 0, self.colors['number']),  # phi
                             ('=', 4, 1, self.colors['op1']),
                             ('x^2', 4, 2, self.colors['op1']),
                             ('2^x', 4, 3, self.colors['op1']),
                             ('\u221a', 4, 4, self.colors['op1']),  # root
-
                             ('e', 5, 0, self.colors['number']),
                             ('ln', 5, 1, self.colors['op1']),
                             ('log', 5, 2, self.colors['op1']),
                             ('lg2', 5, 3, self.colors['op1']),
                             ('n\u221a', 5, 4, self.colors['op2']),  # nth root
-
                             ('\u03c0', 6, 0, self.colors['number']),  # pi(?)
                             ('sin', 6, 1, self.colors['op1']),
                             ('cos', 6, 2, self.colors['op1']),
                             ('tan', 6, 3, self.colors['op1']),
                             ('nCk', 6, 4, self.colors['op2']),
-
                             ('\u03c4', 7, 0, self.colors['number']),  # tau
                             ('asin', 7, 1, self.colors['op1']),
                             ('acos', 7, 2, self.colors['op1']),
                             ('atan', 7, 3, self.colors['op1']),
                             ('E', 7, 4, self.colors['op2']),
-
                             ('hyp', 8, 4, self.colors['sci'][0]),
-
                             ('7', 9, 0, self.colors['digit']),
                             ('8', 9, 1, self.colors['digit']),
                             ('9', 9, 2, self.colors['digit']),
                             ('/', 9, 3, self.colors['op2']),
                             ('\u00f7', 9, 4, self.colors['op2']),  # div
-
                             ('4', 10, 0, self.colors['digit']),
                             ('5', 10, 1, self.colors['digit']),
                             ('6', 10, 2, self.colors['digit']),
                             ('\u00d7', 10, 3, self.colors['op2']),  # x
                             ('^', 10, 4, self.colors['op2']),
-
                             ('1', 11, 0, self.colors['digit']),
                             ('2', 11, 1, self.colors['digit']),
                             ('3', 11, 2, self.colors['digit']),
                             ('-', 11, 3, self.colors['op2']),
                             ('%', 11, 4, self.colors['op2']),
-
                             ('(-)', 12, 0, self.colors['digit']),
                             ('0', 12, 1, self.colors['digit']),
                             ('.', 12, 2, self.colors['digit']),
@@ -668,7 +616,7 @@ class CalculatorGUI(tk.Tk):
             self.help_button_width = 4
 
         else:
-            print(f"Invalid layout {layout}")
+            print(f"Invalid layout {settings_layout}")
             return
 
         # Create the buttons for the number pad and operators with colors
@@ -752,7 +700,7 @@ class CalculatorGUI(tk.Tk):
         self.enter_button.config(width=self.enter_button_width)
         self.main_buttons.append(self.enter_button)
 
-        # "Help" button to clear the input
+        # "Help" button to activate help mode
         self.help_button = tk.Button(self, text="?",
                                      font=("Lucida Sans Unicode", 14),
                                      height=1,
@@ -771,12 +719,10 @@ class CalculatorGUI(tk.Tk):
         """Clear any previous buttons from the grid."""
         # print(f"{len(self.button_objs)=}")
         for key, button in self.button_objs.items():
-            # print(f"Forgetting button obj {button}, {key} ")
             button.grid_forget()
         self.button_objs.clear()
 
         for button in self.main_buttons:
-            # print(f"Forgetting main button {button}, {button.cget('text')}")
             button.grid_forget()
 
         for label in self.main_labels:
@@ -800,7 +746,9 @@ class CalculatorGUI(tk.Tk):
             if self.button_objs[k].cget('text') in self.rpn.operator_0:
                 self.button_objs[k].config(bg=self.colors['number'])
             # Change font
-            if self.button_objs[k].cget('text') in {'\u03c0', '\u03c4', '\u03c6'}:
+            if self.button_objs[k].cget('text') in {'\u03c0',
+                                                    '\u03c4',
+                                                    '\u03c6'}:
                 # greek letters
                 self.button_objs[k].config(font=("Symbol", 14))
             else:
@@ -853,11 +801,10 @@ class CalculatorGUI(tk.Tk):
         # Update sci button bg color
         self.button_objs['sci'].config(bg=self.colors['sci'][self.sci_mode])
 
-    def toggle_hyp_mode(self):  # keep in gui
+    def toggle_hyp_mode(self):
         """Toggle between scientific and normal mode."""
         # There are 2 modes.
         self.hyp_mode = (self.hyp_mode + 1) % 2  # Change to next mode
-        # self.sci_mode = not self.hyp_mode  # Toggle mode
 
         hyp_layouts = [{'sin': 'sin',
                         'cos': 'cos',
@@ -895,7 +842,6 @@ class CalculatorGUI(tk.Tk):
             messagebox.showinfo("Help", help_text)
             self.deactivate_help()
         elif button_text == 'sci':
-            # Toggle the sci mode when the "sci" button is clicked
             self.toggle_sci_mode()
         elif button_text == 'hyp':
             self.toggle_hyp_mode()
@@ -904,7 +850,6 @@ class CalculatorGUI(tk.Tk):
         elif button_text == "Clear":
             self.clear()
         else:
-            # print("not sci")
             # For operators, we insert the operator and immediately calculate
             if button_text in self.operators:
                 # print("op")
@@ -998,7 +943,7 @@ class CalculatorGUI(tk.Tk):
             self.help_mode = True
             self.help_button.config(bg=self.colors['help'][1])
             self.entry.delete(0, tk.END)
-            self.entry.insert(tk.END, "Click for help.")  # Display help mode
+            self.entry.insert(tk.END, "Click button for help.")
 
     def deactivate_help(self):
         self.help_button.config(bg=self.colors['help'][0])
